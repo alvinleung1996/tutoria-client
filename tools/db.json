@@ -1,0 +1,43 @@
+{
+  "users": [
+    {
+      "avatarSrc": "https://emojipedia-us.s3.amazonaws.com/thumbs/160/google/110/smiling-face-with-sunglasses_1f60e.png",
+      "id": "alvinleung", "userName": "alvinleung", "givenName": "Alvin", "familyName": "Leung",
+      "university": "HKU", "courseCode": "COMP3297",
+      "subjectTags": ["C++", "SE"], "type": "contracted", "price": 0, "averageRating": 4,
+      "introduction": "Hi, this is my short description. hahahahahahahahahaha......."
+    },
+    {
+      "avatarSrc": "https://storage.googleapis.com/material-icons/external-assets/v4/icons/svg/ic_account_circle_black_48px.svg",
+      "id": "peterchan", "userName": "peterchan", "givenName": "Peter", "familyName": "Chan",
+      "university": "HKU", "courseCode": "COMP2396",
+      "subjectTags": ["JAVA"], "type": "private", "price": 20, "averageRating": 3
+    },
+    {
+      "avatarSrc": "https://storage.googleapis.com/material-icons/external-assets/v4/icons/svg/ic_account_circle_black_48px.svg",
+      "id": "djtrump", "userName": "djtrump", "givenName": "DJ", "familyName": "Trump",
+      "university": "HKU", "courseCode": "ENGG1111",
+      "subjectTags": ["C"], "type": "private", "price": 50, "averageRating": 5
+    }
+  ],
+  "reviews": [
+    {
+      "id": 0, "userId": "alvinleung",
+      "reviewer": {
+        "avatarSrc": "https://emojipedia-us.s3.amazonaws.com/thumbs/160/google/110/grinning-face-with-smiling-eyes_1f601.png",
+        "givenName": "Gigi", "familyName": "Lee"
+      },
+      "rating": 4, "time": 1508771321562,
+      "comment": "This tutor is great!"
+    },
+    {
+      "id": 1, "userId": "alvinleung",
+      "reviewer": {
+        "avatarSrc": "https://emojipedia-us.s3.amazonaws.com/thumbs/160/google/110/sleeping-face_1f634.png",
+        "givenName": null, "familyName": null
+      },
+      "rating": 2, "time": 1508774432506,
+      "comment": "This tutor is useless!!!"
+    }
+  ]
+}

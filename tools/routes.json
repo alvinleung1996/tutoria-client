@@ -1,0 +1,6 @@
+{
+  "/tutors": "/users",
+  "/tutors?*": "/users?$1",
+  "/tutor/:userName": "/users/:userName",
+  "/tutor/:userName/reviews": "/reviews?userId=:userName"
+}

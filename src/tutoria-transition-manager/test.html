@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+
+<style>
+  div {
+    width: 200px;
+    height: 200px;
+    background-color: green;
+  }
+</style>
+
+<button id="expandWidth">+ Width</button>
+<button id="compressWidth">- Width</button>
+<br>
+<button id="expandHeight">+ Height</button>
+<button id="compressHeight">- Height</button>
+<br>
+<button id="expandDiv">+ Div</button>
+<button id="compressDiv">- Div</button>
+
+<div></div>
+
+<script type="module">
+  import TransitionManager from './tutoria-transition-manager.js';
+  const div = document.querySelector('div');
+  const manager = window.manager = new TransitionManager(div);
+
+  document.getElementById('expandWidth').onclick = e => {
+    manager.transit('width', '500px', {
+      delay: '1s'
+    }).then(() => console.log('+ Width Finish'));
+  };
+  document.getElementById('compressWidth').onclick = e => {
+    manager.transit('width', '100px', {
+
+    }).then(() => console.log('- Width Finish'));
+  }
+
+  document.getElementById('expandHeight').onclick = e => {
+    manager.transit('height', '500px', {
+
+    }).then(() => console.log('+ Height Finish'));
+  };
+  document.getElementById('compressHeight').onclick = e => {
+    manager.transit('height', '100px', {
+
+    }).then(() => console.log('- Height Finish'));
+  }
+
+  document.getElementById('expandDiv').onclick = e => {
+    Promise.all([
+      manager.transit('width', 'auto', {
+        timingFunction: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
+        duration: '200ms'
+      }),
+      manager.transit('height', '500px', {
+        timingFunction: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
+        duration: '200ms',
+        delay: '66ms'
+      })
+    ]).then(() => (console.log('+ Div Finish'), console.log(manager._transitingProperties)));
+  };
+  document.getElementById('compressDiv').onclick = e => {
+    Promise.all([
+      manager.transit('width', '100px', {
+        timingFunction: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
+        duration: '200ms',
+        delay: '66ms'
+      }),
+      manager.transit('height', '100px', {
+        timingFunction: 'cubic-bezier(0.4, 0.0, 0.2, 1)',
+        duration: '200ms'
+      })
+    ]).then(() => (console.log('- Div Finish'), console.log(manager._transitingProperties)));
+  }
+</script>

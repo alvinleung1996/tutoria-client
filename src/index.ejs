@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>Tutoria (by WeCode)</title>
+
+    <style>
+      /* Full selector path to prevent messing with styles in custom elements when using shadydom */
+      html, body, tutoria-app {
+        width: 100%;
+        height: 100%;
+      }
+      body {
+        margin: 0px;
+      }
+    </style>
+    <script>
+      (function() {
+
+        function parseDjangoTemplateOutput(output, fallback) {
+          return output.startsWith('{') ? fallback : output;
+        }
+
+        window.Tutoria = {
+          rootPath: parseDjangoTemplateOutput('{{ rootPath }}', '/'),
+          apiRootPath: parseDjangoTemplateOutput('{{ apiRootPath }}', '/api/'),
+          assetRootPath: parseDjangoTemplateOutput('{% load static %}{% static %}', '/'/*'/static/'*/)
+        };
+
+        // window.Polymer = window.Polymer || {};
+        // Polymer.rootPath = '/';
+
+        function importScript(path, async) {
+          var script = document.createElement('script');
+          script.src = Tutoria.assetRootPath + path;
+          script.async = async;
+          document.head.appendChild(script);
+        }
+
+        if (!window.customElements) {
+          importScript('./custom-elements-es5-adapter.js', false);
+        }
+
+        importScript('./webcomponents-loader.js', true);
+
+        document.addEventListener('WebComponentsReady', function onWebComponentsReady() {
+          document.removeEventListener('WebComponentsReady', onWebComponentsReady, false);
+          importScript('./<%= htmlWebpackPlugin.files.chunks.index.entry %>', true);
+        }, false);
+
+      })();
+    </script>
+  </head>
+  <body>
+    <tutoria-app></tutoria-app>
+    <noscript>Please enable JavaScript to view this website.</noscript>
+  </body>
+</html>
