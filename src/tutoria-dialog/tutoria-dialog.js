@@ -190,7 +190,7 @@ export default class TutoriaDialog extends TutoriaElement {
     });
   }
 
-  hide(animated = true) {
+  hide(animated = true, resolve = false) {
     return new Promise((resolve, reject) => {
       window.dispatchEvent(new CustomEvent('tutoria-dialog-hide', {
         detail: {
@@ -272,7 +272,7 @@ export default class TutoriaDialog extends TutoriaElement {
 
 
   _onActionButtonClicked(evt) {
-    let action = evt.model.action;
+    const action = evt.model.action;
     if (action.callback) {
       action.callback(this, action);
     }

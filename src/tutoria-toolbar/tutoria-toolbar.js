@@ -1,7 +1,8 @@
-import {Element as PolymerElement} from '../../node_modules/@polymer/polymer/polymer-element.js';
+import TutoriaElement from '../tutoria-element/tutoria-element.js';
 import {mixinBehaviors} from '../../node_modules/@polymer/polymer/lib/legacy/class.js';
 import '../../node_modules/@webcomponents/shadycss/apply-shim.min.js';
 
+import '../../node_modules/@polymer/iron-ajax/iron-ajax.js';
 import '../../node_modules/@polymer/iron-media-query/iron-media-query.js';
 import {IronResizableBehavior} from '../../node_modules/@polymer/iron-resizable-behavior/iron-resizable-behavior.js';
 import '../../node_modules/@polymer/paper-button/paper-button.js';
@@ -62,6 +63,16 @@ const template = `
 }
 
 #center {
+  flex: 1 1 0px;
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+#search-button {
+  color: white;
+}
+/* #center {
   flex: 0 1 960px;
   position: relative;
   display: flex;
@@ -75,14 +86,13 @@ const template = `
 }
 #search-input {
   flex: 1 1 auto;
-}
-
-#right {
-  flex: 1 0 auto;
-}
+} */
 
 #search-box {
   position: absolute;
+  top: 100%;
+  left: 0px;
+  right: 0px;
   max-height: calc(100vh - var(--tutoria-toolbar--normal_height) - 8px);
 }
 :host([short]) #search-box {
@@ -98,10 +108,11 @@ const template = `
   left: var(--tutoria-toolbar__search-input--short_margin);
   right: var(--tutoria-toolbar__search-input--short_margin);
 }
-:host > #search-box {
-  top: 100%;
-  left: 0px;
-  right: 0px;
+
+#right {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
 }
 </style>
 
@@ -124,15 +135,18 @@ const template = `
 </div>
 
 <div id="center">
-  <tutoria-search-input id="search-input"
+  <!-- <tutoria-search-input id="search-input"
     short-toolbar="[[short]]"
     flip-drop-down-arrow="[[_searchBoxOpened]]">
-  </tutoria-search-input>
+  </tutoria-search-input> -->
+  <paper-icon-button id="search-button" active="{{_openSearchBox}}" icon="tutoria:search" toggles></paper-icon-button>
 </div>
 
-<div id="space"></div>
-
 <div id="right">
+  <input id="username" type="text" placeholder="username" size="10">
+  <input id="password" type="password" placeholder="password" size="10">
+  <button on-click="_onLoginButtonClick">Login</button>
+  <button on-click="_onLogoutButtonClick">Logout</button>
 </div>
 
 <tutoria-search-box
@@ -141,7 +155,7 @@ const template = `
 </tutoria-search-box>
 `;
 
-export default class TutoriaToolbar extends mixinBehaviors(IronResizableBehavior, PolymerElement) {
+export default class TutoriaToolbar extends mixinBehaviors(IronResizableBehavior, TutoriaElement) {
 
   static get template() {
     return template;
@@ -171,13 +185,10 @@ export default class TutoriaToolbar extends mixinBehaviors(IronResizableBehavior
         reflectToAttribute: true
       },
 
-      _searchBoxX: {
-        type: Number,
-        value: 0
-      },
-      _searchBoxY: {
-        type: Number,
-        value: 0
+      _openSearchBox: {
+        type: Boolean,
+        value: false,
+        observer: '_onOpenSearchBoxChanged'
       }
     };
   }
@@ -185,8 +196,8 @@ export default class TutoriaToolbar extends mixinBehaviors(IronResizableBehavior
   ready() {
     super.ready();
     this.addEventListener('iron-resize', e => this._onIronResize(e));
-    this.$['search-input'].addEventListener('tutoria-search-input-drop-down-button-clicked',
-      e => this._onSearchInputDropDownButtonClicked(e));
+    // this.$['search-input'].addEventListener('tutoria-search-input-drop-down-button-clicked',
+    //   e => this._onSearchInputDropDownButtonClicked(e));
   }
 
   _onIronResize(evt) {
@@ -221,6 +232,66 @@ export default class TutoriaToolbar extends mixinBehaviors(IronResizableBehavior
     } else {
       searchBox.open().then(() => console.log('show-finished'));
     }
+  }
+
+  _onOpenSearchBoxChanged(open) {
+    let searchBox = this.$['search-box'];
+    if (open) searchBox.open();
+    else searchBox.close();
+  }
+
+
+  _onLoginButtonClick(evt) {
+    let ajax = document.createElement('iron-ajax');
+    ajax.body = {
+      username: this.$.username.value,
+      password: this.$.password.value
+    };
+    ajax.contentType = 'application/json';
+    ajax.handleAs = 'json';
+    ajax.method = 'POST';
+    ajax.url = `${this.apiRootPath}auth/login`;
+    let request = ajax.generateRequest();
+    request.completes.then(r => {
+      let response = r.response;
+      if ('error' in response) {
+        return Promise.reject(response);
+      } else {
+        return Promise.resolve(response);
+      }
+    }, e => {
+      return Promise.reject({
+        error: e
+      });
+    }).then(r => {
+      console.info('authenticate success!', r);
+    }, r => {
+      console.warn('Cannot authenticate: ', r);
+    });
+  }
+
+  _onLogoutButtonClick(evt) {
+    let ajax = document.createElement('iron-ajax');
+    ajax.handleAs = 'json';
+    ajax.method = 'GET';
+    ajax.url = `${this.apiRootPath}auth/logout`;
+    let request = ajax.generateRequest();
+    request.completes.then(r => {
+      let response = r.response;
+      if ('error' in response) {
+        return Promise.reject(response);
+      } else {
+        return Promise.resolve(response);
+      }
+    }, e => {
+      return Promise.reject({
+        error: e
+      });
+    }).then(r => {
+      console.info('logout success!', r);
+    }, r => {
+      console.warn('Cannot logout: ', r);
+    });
   }
 }
 

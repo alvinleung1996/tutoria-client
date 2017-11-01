@@ -10,9 +10,7 @@ import '../tutoria-styles/tutoria-styles.js';
 import '../tutoria-timetable/tutoria-timetable.js';
 
 import './tutoria-review.js';
-import './tutoria-select-tutorial-time-dialog.js';
-import './tutoria-tutorial-bill-dialog.js';
-import './tutoria-tutorial-confirmed-dialog.js';
+import './tutoria-tutor-page-time-picker-dialog.js';
 
 export const template = `
 <style>
@@ -108,61 +106,52 @@ article {
   method="GET"
   url="[[apiRootPath]]tutor/[[pathMatchResult.1]]"
   handle-as="json"
-  last-response="{{_tutorResponse}}"
-  last-error="{{_tutorError}}">
-</iron-ajax>
-
-<iron-ajax id="ajax"
-  auto
-  method="GET"
-  url="[[apiRootPath]]tutor/[[pathMatchResult.1]]/reviews"
-  handle-as="json"
-  last-response="{{_reviewsResponse}}"
-  last-error="{{_reviewsError}}">
+  last-response="{{_ajaxLastResponse}}"
+  last-error="{{_ajaxLastError}}">
 </iron-ajax>
 
 <section id="info">
   <div id="avatar-div">
-    <img id="avatar" src$="[[_tutorResponse.avatarSrc]]">
+    <img id="avatar" src$="[[_ajaxLastResponse.avatarSrc]]">
   </div>
   <div id="value-table">
-    <div id="full-name" class="value span">[[_tutorResponse.givenName]] [[_tutorResponse.familyName]]</div>
+    <div id="full-name" class="value span">[[_tutor.givenName]] [[_tutor.familyName]]</div>
     <div class="label">University:</div>
-    <div id="university" class="value">[[_tutorResponse.university]]</div>
+    <div id="university" class="value">[[_tutor.university]]</div>
     <div class="label">Course Code:</div>
-    <div id="course-code" class="value">[[_tutorResponse.courseCode]]</div>
+    <div id="course-code" class="value">[[_tutor.courseCode]]</div>
     <div class="label">Subject Tags:</div>
     <div id="subject-tags" class="value">
-      <template is="dom-repeat" items="[[_tutorResponse.subjectTags]]" as="subjectTag">
+      <template is="dom-repeat" items="[[_tutor.subjectTags]]" as="subjectTag">
         <div class="subject-tag">[[subjectTag]]</div>
       </template>
     </div>
-    <div class="label">Price:</div>
-    <div id="price" class="value">$[[_tutorResponse.price]]</div>
-    <div class="label">Average rating:</div>
-    <tutoria-rating-bar id="average-rating" rating="[[_tutorResponse.averageRating]]"></tutoria-rating-bar>
+    <div class="label">Hourly Rate:</div>
+    <div id="price" class="value">$[[_tutor.hourlyRate]]</div>
+    <div class="label">Average review score:</div>
+    <tutoria-rating-bar id="average-rating" rating="[[_tutor.averageReviewScore]]"></tutoria-rating-bar>
   </div>
 </section>
 
 <section id="introduction-section">
   <header id="introduction-header">Introduction</header>
-  <article id="introduction-text">[[_tutorResponse.introduction]]</article>
+  <article id="introduction-text">[[_tutor.biography]]</article>
 </section>
 
 <section id="timeslots-section">
   <header id="timeslots-header">Timeslot</header>
-  <tutoria-timetable id="timeslots" on-tutoria-timetable-date-selected="_onTimetableDateSelected"></tutoria-timetable>
+  <tutoria-timetable id="timeslots" on-tutoria-timetable-date-selected="_onTimetableDateSelected" events="[[_tutor.events]]"></tutoria-timetable>
 </section>
 
 <section id="reviews-section">
   <header id="header-section">Reviews</header>
-  <template is="dom-repeat" items="[[_reviewsResponse]]" as="review">
+  <template is="dom-repeat" items="[[_tutor.reviews]]" as="review">
     <tutoria-review class="review"
-      reviewer-avatar-src="[[review.reviewer.avatarSrc]]"
-      reviewer-given-name="[[review.reviewer.givenName]]"
-      reviewer-family-name="[[review.reviewer.familyName]]"
-      rating="[[review.rating]]"
-      time="[[review.time]]"
+      reviewer-avatar-src="[[review.reviewer.avatar]]"
+      reviewer-given-name="[[review.student.givenName]]"
+      reviewer-family-name="[[review.student.familyName]]"
+      rating="[[review.score]]"
+      time="[[review.creationDate]]"
       comment="[[review.comment]]">
     </tutoria-review>
   </template>
@@ -183,9 +172,49 @@ export default class TutoriaTutorPage extends TutoriaElement {
         value: 'Tutor Page',
         readOnly: true,
         notify: true
+      },
+
+      _tutor: {
+        type: Object,
+        computed: '_computeTutor(_ajaxLastResponse, _ajaxLastError)'
       }
     };
   }
+
+  _computeTutor(response, error) {
+    if ((response && 'error' in response) || error) {
+      return {};
+    }
+    const result = response.data;
+
+    let tutor = {
+      username: result.username,
+      givenName: result.givenName,
+      familyName: result.familyName,
+      avatar: result.avatar,
+      hourlyRate: Number.parseFloat(result.hourlyRate),
+      university: result.university,
+      courseCode: result.courseCode,
+      subjectTags: result.subjectTags,
+      averageReviewScore: result.averageReviewScore,
+      biography: result.biography,
+      reviews: result.reviews,
+      events: []
+    };
+    for (const entry of result.events) {
+      tutor.events.push({
+        startDate: new Date(entry.startDate),
+        endDate: new Date(entry.endDate)
+      });
+    }
+    for (const review of tutor.reviews) {
+      review.creationDate = new Date(review.creationDate);
+    }
+
+    return tutor;
+  }
+
+
 
   _onTimetableDateSelected(evt) {
     let selectedStartDate = new Date(evt.detail.selectedDate.getTime());
@@ -196,46 +225,20 @@ export default class TutoriaTutorPage extends TutoriaElement {
     let timeStep = 30 * 60 * 1000;
     selectedEndDate.setMilliseconds(selectedEndDate.getMilliseconds() + timeStep);
 
-    let dialog = document.createElement('tutoria-select-tutorial-time-dialog');
-    dialog.startDate = selectedStartDate;
-    dialog.endDate = selectedEndDate;
-    dialog.timeStep = timeStep;
-
-    dialog.show();
-    dialog.cancelCallback = d => {
-      d.hide();
-    }
-    dialog.okCallback = d => {
-      d.hide().then(() => {
-        this._onTutorialTimeSelected(d.startDate, d.endDate);
-      });
-    };
-  }
-
-  _onTutorialTimeSelected(startDate, endDate) {
-    let dialog = document.createElement('tutoria-tutorial-bill-dialog');
-    dialog.startDate = startDate;
-    dialog.endDate = endDate;
-
-    dialog.show();
-    dialog.cancelCallback = d => {
-      d.hide();
-    }
-    dialog.confirmCallback = d => {
-      d.hide()
-      .then(() => this._onTutorialConfirmed(startDate, endDate));
-    };
-  }
-
-  _onTutorialConfirmed(startDate, endDate) {
-    let dialog = document.createElement('tutoria-tutorial-confirmed-dialog');
-    dialog.startDate = startDate;
-    dialog.endDate = endDate;
-
-    dialog.show();
-    dialog.okCallback = d => {
-      d.hide();
-    };
+    let dialog = document.createElement('tutoria-tutor-page-time-picker-dialog');
+    dialog.setProperties({
+      tutor: this._tutor,
+      startDate: selectedStartDate,
+      endDate: selectedEndDate,
+      timeStep: timeStep
+    });
+    dialog.showForResult()
+    .then(() => {
+      this.$.ajax.generateRequest();
+    }, e => {
+      console.info('Booking aborted');
+      e && console.error(e);
+    });
   }
 
 }

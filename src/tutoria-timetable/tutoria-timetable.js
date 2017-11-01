@@ -135,7 +135,7 @@ dom-repeat {
       <div class$="day-column [[_computeDayColumnClass(index, _days.length)]]" style$="[[_computeDayColumnStartStyle(index)]]"
         on-click="_onDayColumnClicked">
         <template is="dom-repeat" items="[[day.events]]" as="event">
-          <div class="event" style$="[[_computeEventPositionStyles(dayStartTimeOffset, dayEndTimeOffset, event.startDate, event.endDate)]]" on-click="_onEventClicked">[[event.name]]</div>
+          <div class="event" style$="[[_computeEventPositionStyles(dayStartTimeOffset, dayEndTimeOffset, event.startDate, event.endDate)]]" on-click="_onEventClicked">[[event.description]]</div>
         </template>
       </div>
     </template>
@@ -198,18 +198,19 @@ export default class TutoriaTimetable extends TutoriaElement {
       },
       events: {
         type: Array,
-        value: () => [
-          {
-            startDate: _mock_date(2, 0, 0),
-            endDate: _mock_date(2, 2, 30),
-            name: 'Meeting with god'
-          },
-          {
-            startDate: _mock_date(3, 2, 30),
-            endDate: _mock_date(3, 6, 0),
-            name: 'Meeting with hell'
-          }
-        ]
+        value: () => []
+        // value: () => [
+        //   {
+        //     startDate: _mock_date(2, 0, 0),
+        //     endDate: _mock_date(2, 2, 30),
+        //     name: 'Meeting with god'
+        //   },
+        //   {
+        //     startDate: _mock_date(3, 2, 30),
+        //     endDate: _mock_date(3, 6, 0),
+        //     name: 'Meeting with hell'
+        //   }
+        // ]
       },
 
       _timestamps: {
@@ -273,7 +274,7 @@ export default class TutoriaTimetable extends TutoriaElement {
         computedEvents.push({
           startDate: new Date(startDate.getTime()),
           endDate: new Date(Math.min(endDate.getTime(), nextDate.getTime())),
-          name: event.name,
+          description: event.description,
           originalEvent: event
         });
         startDate = nextDate;
@@ -326,6 +327,10 @@ export default class TutoriaTimetable extends TutoriaElement {
 
 
   _onDayColumnClicked(evt) {
+    if (evt.target !== evt.currentTarget) {
+      return;
+    }
+    
     const mouseY = evt.offsetY;
     const dayStartDate = evt.model.day.startDate;
     const dayEndDate = evt.model.day.endDate;
