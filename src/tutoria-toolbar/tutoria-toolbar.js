@@ -265,6 +265,7 @@ export default class TutoriaToolbar extends mixinBehaviors(IronResizableBehavior
       });
     }).then(r => {
       console.info('authenticate success!', r);
+      window.location.reload();
     }, r => {
       console.warn('Cannot authenticate: ', r);
     });
@@ -289,6 +290,7 @@ export default class TutoriaToolbar extends mixinBehaviors(IronResizableBehavior
       });
     }).then(r => {
       console.info('logout success!', r);
+      window.location.reload();
     }, r => {
       console.warn('Cannot logout: ', r);
     });

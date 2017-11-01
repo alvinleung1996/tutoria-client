@@ -6,7 +6,7 @@ import '../../node_modules/@polymer/paper-button/paper-button.js';
 import '../../node_modules/@polymer/paper-checkbox/paper-checkbox.js';
 import '../../node_modules/@polymer/paper-input/paper-input.js';
 
-import {redirectTo} from  '../tutoria-utils/tutoria-redirect-utils.js';
+import {redirectTo} from  '../tutoria-api/tutoria-redirect-utils.js';
 import '../tutoria-styles/tutoria-styles.js';
 import * as AnimationStyles from '../tutoria-styles/tutoria-animation-styles.js';
 import TransitionManager from '../tutoria-transition-manager/tutoria-transition-manager.js';

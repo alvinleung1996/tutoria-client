@@ -87,11 +87,20 @@ export default class TutoriaHome extends TutoriaElement {
       //   notify: true
       // }
 
+      pathMatchResult: {
+        type: Object,
+        observer: '_onPathMatchResultChanged'
+      },
+
       _events: {
         type: Array,
         computed: '_computeEvents(_ajaxLastResponse, _ajaxLastError)'
       }
     };
+  }
+
+  _onPathMatchResultChanged() {
+    this.$.ajax.generateRequest();
   }
 
   _computeEvents(response, error) {

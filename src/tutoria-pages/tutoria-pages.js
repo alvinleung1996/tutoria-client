@@ -112,11 +112,9 @@ export default class TutoriaPages extends PolymerElement {
     // Down
     if (selectedPage) {
       selectedPage.pathMatchResult = this._pathMatchResult;
-      if (selectedPage.queryParams !== this.queryParams) {
-        // Perform dirty check since we cannot know which path has changed!
-        selectedPage.queryParams = undefined;
-        selectedPage.queryParams = this.queryParams;
-      }
+      // Perform dirty check since we cannot know which path has changed!
+      selectedPage.queryParams = undefined;
+      selectedPage.queryParams = this.queryParams;
     }
 
     // Up
