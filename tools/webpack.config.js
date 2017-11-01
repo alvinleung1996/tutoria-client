@@ -19,7 +19,7 @@ module.exports = {
 
   plugins: [
     new CleanWebpackPlugin([
-      path.resolve(__dirname, '../out')
+      path.resolve(__dirname, '../../tutoria-server/tutoriaserver/static')
     ], {
       allowExternal: true
     }),
@@ -28,16 +28,17 @@ module.exports = {
     // }),
     new CopyWebpackPlugin([{
       from: path.resolve(__dirname, '../node_modules/@webcomponents/webcomponentsjs/@(webcomponents|custom-elements)*.js'),
-      to: path.resolve(__dirname, '../out/[name].[ext]')
+      to: path.resolve(__dirname, '../../tutoria-server/tutoriaserver/static/[name].[ext]')
     }]),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, '../src/index.ejs'),
+      filename: path.resolve(__dirname, '../../tutoria-server/tutoriaserver/templates/tutoriaserver/index.html'),
       inject: false
     })
   ],
 
   output: {
-    path: path.resolve(__dirname, '../out'),
+    path: path.resolve(__dirname, '../../tutoria-server/tutoriaserver/static'),
     filename: '[name].bundle.js',
     chunkFilename: '[name].bundle.js'
   },

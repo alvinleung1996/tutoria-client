@@ -29,7 +29,7 @@ export const template = `
 
 <tutoria-tutors-table id="table"
   header="Search Result"
-  items="[[_ajaxLastResponse]]">
+  items="[[_tutors]]">
 </tutoria-tutors-table>
 `;
 
@@ -53,11 +53,9 @@ export default class SearchResultPage extends TutoriaElement {
         notify: true
       },
 
-      _ajaxLastResponse: {
-        observer: '_onAjaxLastResponseChanged'
-      },
-      _ajaxLastError: {
-        observer: '_onAjaxLastErrorChanged'
+      _tutors: {
+        type: Array,
+        computed: '_computeTutors(_ajaxLastResponse, _ajaxLastError)'
       }
     };
   }
@@ -99,18 +97,24 @@ export default class SearchResultPage extends TutoriaElement {
     this.$.ajax.params = params;
   }
 
-  _onAjaxLastResponseChanged(response) {
-    if (!response) {
-      return;
+  _computeTutors(response, error) {
+    if ((response && 'error' in response) || error) {
+      return [];
     }
-    console.log('ajax response', response);
-  }
-
-  _onAjaxLastErrorChanged(error) {
-    if (!error) {
-      return;
+    let tutors = [];
+    for (const entry of response.data) {
+      tutors.push({
+        username: entry.username,
+        givenName: entry.givenName,
+        familyName: entry.familyName,
+        hourlyRate: Number.parseFloat(entry.hourlyRate),
+        university: entry.university,
+        courseCode: entry.courseCode,
+        subjectTags: entry.subjectTags,
+        averageReviewScore: entry.averageReviewScore
+      });
     }
-    console.warn('ajax error', error);
+    return tutors;
   }
 
 }

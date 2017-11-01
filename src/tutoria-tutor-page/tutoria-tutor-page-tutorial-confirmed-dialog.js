@@ -27,7 +27,7 @@ export const contentTemplate = `
 </iron-form>
 `;
 
-export default class TutoriaTutorialConfirmedDialog extends TutoriaDialog {
+export default class TutoriaTutorPageTutorialConfirmedDialog extends TutoriaDialog {
 
   static get template() {
     return TutoriaDialog.generateTemplate({
@@ -44,9 +44,6 @@ export default class TutoriaTutorialConfirmedDialog extends TutoriaDialog {
       },
       startDate: Date,
       endDate: Date,
-
-      okCallback: Function,
-      confirmCallback: Function,
 
       _period: {
         type: String,
@@ -71,11 +68,19 @@ export default class TutoriaTutorialConfirmedDialog extends TutoriaDialog {
   }
 
   
+  showForResult(...args) {
+    return this.show(...args)
+    .then(() => new Promise((resolve, reject) => {
+      this._resolveDialog = resolve;
+      this._rejectDialog = reject;
+    }));
+  }
 
   _onOkButtonClicked() {
-    if (this.okCallback) this.okCallback(this);
+    this.hide()
+    .then(this._resolveDialog)
   }
 
 }
 
-window.customElements.define('tutoria-tutorial-confirmed-dialog', TutoriaTutorialConfirmedDialog);
+window.customElements.define('tutoria-tutor-page-tutorial-confirmed-dialog', TutoriaTutorPageTutorialConfirmedDialog);

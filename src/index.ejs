@@ -26,7 +26,7 @@
         window.Tutoria = {
           rootPath: parseDjangoTemplateOutput('{{ rootPath }}', '/'),
           apiRootPath: parseDjangoTemplateOutput('{{ apiRootPath }}', '/api/'),
-          assetRootPath: parseDjangoTemplateOutput('{% load static %}{% static %}', '/'/*'/static/'*/)
+          assetRootPath: parseDjangoTemplateOutput('{{ staticRootPath }}', '/'/*'/static/'*/)
         };
 
         // window.Polymer = window.Polymer || {};

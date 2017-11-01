@@ -34,7 +34,7 @@ th:nth-child(7), td:nth-child(7) {
 th:nth-child(n+3), td:nth-child(n+3) {
   padding-left: 32px;
 }
-#price-header, .price-cell {
+#price-header, .hourly-rate {
   text-align: right;
 }
 #full-name-column {
@@ -70,6 +70,13 @@ tbody > tr:hover {
 .avatar {
   display: block;
   width: 40px;
+}
+
+.average-review-cell[show-score] .average-review-score-na {
+  display: none;
+}
+.average-review-cell:not([show-score]) .average-review-bar {
+  display: none;
 }
 </style>
 
@@ -111,9 +118,10 @@ tbody > tr:hover {
             <span class="subject-tag">[[subjectTag]]</span>
           </template>
         </td>
-        <td class="price-cell">$[[tutor.price]]</td>
-        <td class="average-rating-cell">
-          <tutoria-rating-bar id="average-rating-bar" rating="[[tutor.averageRating]]"></tutoria-rating-bar>
+        <td class="hourly-rate">$[[tutor.hourlyRate]]</td>
+        <td class="average-review-cell" show-score$="[[_computeShowAverageScore(tutor.averageReviewScore)]]">
+          <span class="average-review-score-na">N/A</span>
+          <tutoria-rating-bar class="average-review-bar" rating="[[tutor.averageReviewScore]]"></tutoria-rating-bar>
         </td>
       </tr>
     </template>
@@ -166,13 +174,13 @@ export default class TutorsTable extends TutoriaElement {
     }
   }
 
-  _showStar(index, averageRating) {
-    return averageRating >= index;
+  _computeShowAverageScore(score) {
+    return score >= 0
   }
 
   _onTutorRowClicked(evt) {
     console.log(evt.model.tutor);
-    window.history.pushState({}, '', this.rootPath + './tutor/' + evt.model.tutor.userName);
+    window.history.pushState({}, '', this.rootPath + './tutor/' + evt.model.tutor.username);
     window.dispatchEvent(new CustomEvent('location-changed'));
   }
 

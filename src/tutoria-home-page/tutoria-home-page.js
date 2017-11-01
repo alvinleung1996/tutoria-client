@@ -1,10 +1,12 @@
 import TutoriaElement from '../tutoria-element/tutoria-element.js';
 import '../../node_modules/@webcomponents/shadycss/apply-shim.min.js';
 
+import '../../node_modules/@polymer/iron-ajax/iron-ajax.js';
+
 import '../tutoria-dialog/tutoria-dialog.js';
 import '../tutoria-timetable/tutoria-timetable.js';
 
-import './tutoria-tutorial-detail-dialog.js';
+import './tutoria-home-page-event-detail-dialog.js';
 
 export const template = `
 <style>
@@ -40,9 +42,21 @@ article {
 }
 </style>
 
+<iron-ajax id="ajax"
+  auto
+  method="GET"
+  url="[[apiRootPath]]user/events"
+  handle-as="json"
+  last-response="{{_ajaxLastResponse}}"
+  last-error="{{_ajaxLastError}}">
+</iron-ajax>
+
 <section>
   <header>Your Bookings</header>
-  <tutoria-timetable id="timetable" class="content" on-tutoria-timetable-event-selected="_onEventSelected"></tutoria-timetable>
+  <tutoria-timetable id="timetable" class="content"
+    events="[[_events]]"
+    on-tutoria-timetable-event-selected="_onEventSelected">
+  </tutoria-timetable>
 </section>
 `;
 
@@ -72,64 +86,50 @@ export default class TutoriaHome extends TutoriaElement {
       //   readOnly: true,
       //   notify: true
       // }
+
+      _events: {
+        type: Array,
+        computed: '_computeEvents(_ajaxLastResponse, _ajaxLastError)'
+      }
     };
   }
 
-  _onEventSelected(evt) {
-    console.log(evt.detail.selectedEvent);
-    const tutorial = evt.detail.selectedEvent.originalEvent;
-    let dialog = document.createElement('tutoria-tutorial-detail-dialog');
-    dialog.startDate = tutorial.startDate;
-    dialog.endDate = tutorial.endDate;
-    dialog.show();
-    dialog.cancelBookingCallback = d => {
-      this._comfirmCancelTutorial()
-      .then(
-        cd => Promise.all([
-          d.hide(),
-          cd.hide()
-        ])
-        .then(
-          () => this._informTutorialCancelled()
-        ),
-        cd => cd.hide()
-      );
+  _computeEvents(response, error) {
+    if ((response && 'error' in response) || error) {
+      return [];
     }
-    dialog.closeCallback = d => {
-      d.hide();
-    }
-  }
-
-  _comfirmCancelTutorial() {
-    return new Promise((resolve, reject) => {
-      let dialog = document.createElement('tutoria-dialog');
-      dialog.header = 'Cancel Booking?';
-      dialog.content = 'Cancelling the booking will also refund the tutorial fee.';
-      dialog.actions = [
-        {
-          text: 'Keep Booking',
-          callback: (d, a) => reject(d) 
-        },
-        {
-          text: 'Cancel Booking',
-          callback: (d, a) => resolve(d)
+    let events = [];
+    for (const entry of response.data) {
+      let event = {
+        id: entry.id,
+        startDate: new Date(entry.startDate),
+        endDate: new Date(entry.endDate),
+        type: entry.type,
+        description: entry.type === 'tutorial' ? `Tutorial` : 'Unavailable Period',
+        student: {
+          givenName: entry.student.givenName,
+          familyName: entry.student.familyName
         }
-      ];
-      dialog.show();
-    });
+      }
+      if (event.type === 'tutorial') {
+        event['tutor'] = {
+          givenName: entry.tutor.givenName,
+          familyName: entry.tutor.familyName
+        }
+      }
+      events.push(event);
+    }
+    return events;
   }
 
-  _informTutorialCancelled() {
-    let dialog = document.createElement('tutoria-dialog');
-    dialog.header = 'Tutorial Cancelled';
-    dialog.content = 'Your booking has been cancelled and your fee has been refunded.';
-    dialog.actions = [
-      {
-        text: 'OK',
-        callback: (d, a) => d.hide() 
-      },
-    ];
-    dialog.show();
+  _onEventSelected(evt) {
+    const event = evt.detail.selectedEvent.originalEvent;
+    const dialog = document.createElement('tutoria-home-page-event-detail-dialog');
+    dialog.event = event;
+    dialog.showForResult()
+    .then(() => {
+      this.$.ajax.generateRequest();
+    }, e => e && console.error(e));
   }
 
 }

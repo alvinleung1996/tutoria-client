@@ -3,6 +3,8 @@ import TutoriaDialog, * as TutoriaDialogTemplates from '../tutoria-dialog/tutori
 import '../../node_modules/@polymer/iron-form/iron-form.js';
 // import '../../node_modules/@polymer/paper-input/paper-input.js';
 
+import './tutoria-tutor-page-tutorial-bill-dialog.js';
+
 export const contentStyles = `
 ${TutoriaDialogTemplates.contentStyles}
 <style>
@@ -26,7 +28,7 @@ export const contentTemplate = `
 </iron-form>
 `;
 
-export default class TutoriaSelectTutorialTimeDialog extends TutoriaDialog {
+export default class TutoriaTutorPageTimePickerDialog extends TutoriaDialog {
 
   static get template() {
     return TutoriaDialog.generateTemplate({
@@ -42,6 +44,9 @@ export default class TutoriaSelectTutorialTimeDialog extends TutoriaDialog {
         value: 'Select Tutorial Session Time'
       },
 
+      tutor: {
+        type: Object
+      },
       startDate: {
         type: Date,
         observer: '_onStartDateChanged'
@@ -67,8 +72,8 @@ export default class TutoriaSelectTutorialTimeDialog extends TutoriaDialog {
         computed: '_computeTimeStepSecond(timeStep)'
       },
 
-      okCallback: Function,
       cancelCallback: Function,
+      okCallback: Function
     }
   }
 
@@ -118,15 +123,34 @@ export default class TutoriaSelectTutorialTimeDialog extends TutoriaDialog {
     return Math.floor(timeStep / 1000);
   }
 
+  showForResult(...args) {
+    return this.show(...args)
+    .then(() => new Promise((resolve, reject) => {
+      this._resolveDialog = resolve;
+      this._rejectDialog = reject;
+    }));
+  }
 
   _onCancelButtonClicked() {
-    if (this.cancelCallback) this.cancelCallback(this);
+    this.hide()
+    .then(this._rejectDialog);
   }
 
   _onOkButtonClicked() {
-    if (this.okCallback) this.okCallback(this);
+    this.hide()
+    .then(() => {
+      let dialog = document.createElement('tutoria-tutor-page-tutorial-bill-dialog');
+      dialog.setProperties({
+        tutor: this.tutor,
+        startDate: this.startDate,
+        endDate: this.endDate
+      });
+      return dialog.showForResult()
+      .then(this._resolveDialog, this._rejectDialog);
+    });
+    
   }
 
 }
 
-window.customElements.define('tutoria-select-tutorial-time-dialog', TutoriaSelectTutorialTimeDialog);
+window.customElements.define('tutoria-tutor-page-time-picker-dialog', TutoriaTutorPageTimePickerDialog);
