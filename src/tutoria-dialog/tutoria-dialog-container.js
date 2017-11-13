@@ -24,9 +24,11 @@ const template = `
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  /* TODO: Add transition for filter */
 }
-:host > *:last-child {
-  pointer-events: auto;
+:host > ::slotted(:not(:last-child)) {
+  pointer-events: none;
+  filter: brightness(0.5);
 }
 </style>
 <slot></slot>

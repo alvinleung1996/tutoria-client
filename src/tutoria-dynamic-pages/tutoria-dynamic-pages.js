@@ -83,7 +83,12 @@ export default class TutoriaDynamicPages extends mixinBehaviors(IronResizableBeh
 
 
   _onPathToPageMapsOrPathChanged(pathToPageMapsRecord, path) {
-    let pathToPageMaps = pathToPageMapsRecord && pathToPageMapsRecord.base;
+    this._selectPage();
+  }
+
+  _selectPage() {
+    let pathToPageMaps = this.pathToPageMaps;
+    let path = this.path;
 
     let selectedPage, result;
 
@@ -110,9 +115,10 @@ export default class TutoriaDynamicPages extends mixinBehaviors(IronResizableBeh
               let page = document.createElement(map.pageTagName);
               this._newPageStateManager(page);
               this.appendChild(page);
-              if (map.pathPattern.test(path)) {
-                this._setSelectedPage(page);
-              }
+              // if (map.pathPattern.test(path)) {
+              //   this._setSelectedPage(page);
+              // }
+              setTimeout(() => this._selectPage());
 
             }, e => {
               console.warn(e);
@@ -167,7 +173,10 @@ export default class TutoriaDynamicPages extends mixinBehaviors(IronResizableBeh
 
 
 
-  _onSelectedPageChanged(selectedPage) {
+  _onSelectedPageChanged(selectedPage, deselectedPage) {
+    if (deselectedPage) deselectedPage.removeAttribute('selected');
+    if (selectedPage) selectedPage.setAttribute('selected', '');
+
     this._makePageVisible(selectedPage).catch(e => {
       if (e !== undefined) throw e;
     });
@@ -209,7 +218,7 @@ export default class TutoriaDynamicPages extends mixinBehaviors(IronResizableBeh
 }
 window.customElements.define('tutoria-dynamic-pages', TutoriaDynamicPages);
 
-export const PageState = {
+const PageState = {
   INVISIBLE: 'invisible',
   HIDING: 'hiding',
   SHOWING: 'showing',
@@ -231,6 +240,18 @@ class PageStateManager {
   set state(state) {
     this._state = state;
     this.element.setAttribute('page-state', state);
+    let visible = state !== PageState.INVISIBLE;
+    let transiting = state === PageState.HIDING || state === PageState.SHOWING;
+    if (visible) {
+      this.element.setAttribute('visible', '');
+    } else {
+      this.element.removeAttribute('visible', '');
+    }
+    if (transiting) {
+      this.element.setAttribute('transiting', '');
+    } else {
+      this.element.removeAttribute('transiting');
+    }
   }
 
   toVisible() {
@@ -385,10 +406,10 @@ class PageSlideAnimation extends PageAnimation {
 
   constructor(element) {
     super(element, [
-      { transform: 'translateY(30vh)', opacity: 0 },
+      { transform: 'translateY(100px)', opacity: 0 },
       { transform: 'none', opacity: 1 }
     ], {
-      duration: 500,
+      duration: 330,
       easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)', // ease-out-cubic
       fill: 'both'
     });

@@ -1,4 +1,4 @@
-import {Element as PolymerElement} from '../../node_modules/@polymer/polymer/polymer-element.js';
+import TutoriaElement from '../tutoria-element/tutoria-element.js';
 import '../../node_modules/@webcomponents/shadycss/apply-shim.min.js';
 
 import '../../node_modules/@polymer/iron-form/iron-form.js';
@@ -28,31 +28,53 @@ const template = `
   overflow-y: hidden;
   pointer-events: none;
 }
+
 #content {
   padding: 16px;
+}
 
-}
 #form {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
-  flex-wrap: wrap;
+  grid-gap: 8px;
 }
-#form > * {
-  flex-basis: calc(50% - 8px);
+#tutor-type-input,
+#tutor-type-input_select {
+  @apply --tutoria-text--body1_font;
+  color: var(--tutoria-text--primary_color);
 }
-#form > .span {
-  flex-basis: 100%;
+#tutor-type-input_select {
+  height: 32px;
 }
-#form > .composite {
+#hourly-rate-range-input {
+  display: flex;
+  align-items: flex-end;
+}
+#hourly-rate-range-input_label,
+#hourly-rate-range-input_hyphen {
+  margin-bottom: 16px;
+}
+#hourly-rate-range-input_label {
+  margin-right: 16px;
+}
+#hourly-rate-range-input_hyphen {
+  margin-left: 16px;
+  margin-right: 16px;
+}
+.label {
+  @apply --tutoria-text--body1_font;
+  color: var(--tutoria-text--primary_color);
+}
+#buttons {
+  grid-column-end: span 2;
   display: flex;
   align-items: center;
-}
-#form > .composite.align-right {
   justify-content: flex-end;
 }
-#form > .composite > * {
-
+#search-button {
+  background-color: dodgerblue;
+  color: white;
 }
 </style>
 
@@ -60,33 +82,42 @@ const template = `
   <iron-form id="iron-form"
     on-iron-form-presubmit="_onIronFormPresubmit">
     <form id="form">
+
       <paper-input label="given name" name="given-name" type="text"></paper-input>
       <paper-input label="family name" name="family-name" type="text"></paper-input>
+
       <paper-input label="university" name="university" type="text"></paper-input>
       <paper-input label="course code" name="course-code" type="text"></paper-input>
+
       <paper-input label="subject tags" name="subject-tags" type="text"></paper-input>
-      <select label="tutor type" name="type">
-        <option value="">All</option>
-        <option value="contracted">Only Contracted</option>
-        <option value="private">Only Private</option>
-      </select>
-      <div class="composite">
-        Price:
-        <paper-input label="min" name="price-min" type="number" min="0" step="10" error-message="Price must be a multiple of $10"><div prefix>$</div></paper-input>
-        -
-        <paper-input label="max" name="price-max" type="number" min="0" step="10"><div prefix>$</div></paper-input>
+      <div id="tutor-type-input">
+        <label for="tutor-type-input_select">tutor type:</label>
+        <select id="tutor-type-input_select" label="tutor type" name="type">
+          <option value="">All</option>
+          <option value="contracted">Only Contracted</option>
+          <option value="private">Only Private</option>
+        </select>
       </div>
-      <paper-checkbox name="show-all" value="true">Show tutors with no available timeslot</paper-checkbox>
-      <div class="span composite align-right">
+
+      <div id="hourly-rate-range-input">
+        <span id="hourly-rate-range-input_label" class="label">Price: </span>
+        <paper-input label="min" name="hourly-rate-min" type="number" min="0" step="10"><div prefix>$</div></paper-input>
+        <span id="hourly-rate-range-input_hyphen" class="label">-</span>
+        <paper-input label="max" name="hourly-rate-max" type="number" min="0" step="10"><div prefix>$</div></paper-input>
+      </div>
+      <paper-checkbox name="free-only" value="true">Show tutors available timeslot only</paper-checkbox>
+
+      <div id="buttons">
         <paper-button on-click="_onResetButtonClicked">Reset</paper-button>
-        <paper-button raised on-click="_onSubmitButtonClicked">Search</paper-button>
+        <paper-button id="search-button" raised on-click="_onSubmitButtonClicked">Search</paper-button>
       </div>
+
     </form>
   </iron-form>
 </div>
 `;
 
-export default class TutoriaSearchBox extends PolymerElement {
+export default class TutoriaSearchBox extends TutoriaElement {
 
   static get template() {
     return template;
@@ -162,7 +193,6 @@ export default class TutoriaSearchBox extends PolymerElement {
     this.$['iron-form'].reset();
   }
   _onSubmitButtonClicked(evt) {
-    console.log('submit button clicked!');
     this.$['iron-form'].submit();
   }
 
@@ -177,8 +207,8 @@ export default class TutoriaSearchBox extends PolymerElement {
         parts.push(`${window.encodeURIComponent(key)}=${window.encodeURIComponent(param[key])}`);
       }
     }
-    let queryString = parts.join('&');
-    let uri = '/search' + (queryString ? ('?'+queryString) : '');
+    let uri = this.rootPath + 'search';
+    if (parts.length > 0) uri += '?' + parts.join('&');
     redirectTo(uri);
   }
 

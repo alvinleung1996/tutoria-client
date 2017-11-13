@@ -3,10 +3,11 @@ import '../../node_modules/@webcomponents/shadycss/apply-shim.min.js';
 
 import '../../node_modules/@polymer/iron-ajax/iron-ajax.js';
 
+import '../tutoria-api/tutoria-api-ajax.js';
 import '../tutoria-dialog/tutoria-dialog.js';
 import '../tutoria-timetable/tutoria-timetable.js';
 
-import './tutoria-home-page-event-detail-dialog.js';
+import './tutoria-home-page-tutorial-detail-dialog.js';
 
 export const template = `
 <style>
@@ -42,14 +43,15 @@ article {
 }
 </style>
 
-<iron-ajax id="ajax"
-  auto
-  method="GET"
-  url="[[apiRootPath]]user/events"
-  handle-as="json"
-  last-response="{{_ajaxLastResponse}}"
-  last-error="{{_ajaxLastError}}">
-</iron-ajax>
+<tutoria-api-ajax>
+  <iron-ajax id="ajax"
+    method="GET"
+    url$="[[apiRootPath]]users/me/events"
+    handle-as="json"
+    last-response="{{_ajaxLastResponse}}"
+    last-error="{{_ajaxLastError}}">
+  </iron-ajax>
+</tutoria-api-ajax>
 
 <section>
   <header>Your Bookings</header>
@@ -68,6 +70,8 @@ export default class TutoriaHome extends TutoriaElement {
 
   static get properties() {
     return {
+      visible: Boolean,
+
       pageTitle: {
         type: String,
         value: 'Home',
@@ -87,57 +91,57 @@ export default class TutoriaHome extends TutoriaElement {
       //   notify: true
       // }
 
-      pathMatchResult: {
-        type: Object,
-        observer: '_onPathMatchResultChanged'
-      },
-
       _events: {
         type: Array,
-        computed: '_computeEvents(_ajaxLastResponse, _ajaxLastError)'
+        computed: '_computeEvents(_ajaxLastResponse)'
       }
     };
   }
 
-  _onPathMatchResultChanged() {
-    this.$.ajax.generateRequest();
+  static get observers() {
+    return [
+      '_onPageShouldUpdate(visible)'
+    ];
   }
 
-  _computeEvents(response, error) {
-    if ((response && 'error' in response) || error) {
+  _onPageShouldUpdate(visible) {
+    if (visible) {
+      this.$.ajax.generateRequest();
+    }
+  }
+  
+
+  _computeEvents(response) {
+    if (!response) {
       return [];
     }
-    let events = [];
-    for (const entry of response.data) {
-      let event = {
-        id: entry.id,
-        startDate: new Date(entry.startDate),
-        endDate: new Date(entry.endDate),
-        type: entry.type,
-        description: entry.type === 'tutorial' ? `Tutorial` : 'Unavailable Period',
-        student: {
-          givenName: entry.student.givenName,
-          familyName: entry.student.familyName
-        }
-      }
-      if (event.type === 'tutorial') {
-        event['tutor'] = {
-          givenName: entry.tutor.givenName,
-          familyName: entry.tutor.familyName
-        }
-      }
-      events.push(event);
-    }
+
+    let events = response.data;
+    events.forEach(event => {
+      event.startTime = new Date(event.startTime);
+      event.endTime = new Date(event.endTime);
+      event.description = event.type === 'tutorial' ? 'Tutorial' : 'Unavailable';
+      event.selectable = true;
+    });
+
     return events;
   }
 
   _onEventSelected(evt) {
     const event = evt.detail.selectedEvent.originalEvent;
-    const dialog = document.createElement('tutoria-home-page-event-detail-dialog');
+    switch (event.type) {
+      case 'tutorial':
+        this._showTutorialDetailDialog(event);
+        break;
+    }
+  }
+
+  _showTutorialDetailDialog(event) {
+    const dialog = document.createElement('tutoria-home-page-tutorial-detail-dialog');
     dialog.event = event;
     dialog.showForResult()
     .then(() => {
-      this.$.ajax.generateRequest();
+      this.$.ajax.generateRequest()
     }, e => e && console.error(e));
   }
 

@@ -63,12 +63,12 @@ const template = `
 
 <div id="header">
   <div id="avatar-div">
-    <img id="avatar" src$="[[reviewerAvatarSrc]]">
+    <img id="avatar" src$="[[avatar]]">
   </div>
   <div id="info">
     <div id="name">[[_formattedName]]</div>
     <div id="meta">
-      <tutoria-rating-bar id="rating-bar" rating="[[rating]]"></tutoria-rating-bar>
+      <tutoria-rating-bar id="rating-bar" rating="[[score]]"></tutoria-rating-bar>
       <time id="time">[[_formattedTime]]</time>
     </div>
   </div>
@@ -84,16 +84,15 @@ export default class TutoriaReview extends TutoriaElement {
 
   static get properties() {
     return {
-      reviewerAvatarSrc: String,
-      reviewerGivenName: String,
-      reviewerFamilyName: String,
-      rating: Number,
+      avatar: String,
+      fullName: String,
+      score: Number,
       time: Number,
       comment: String,
 
       _formattedName: {
         type: String,
-        computed: '_computeFormattedName(reviewerGivenName, reviewerFamilyName)'
+        computed: '_computeFormattedName(fullName)'
       },
       _formattedTime: {
         type: String,
@@ -102,12 +101,8 @@ export default class TutoriaReview extends TutoriaElement {
     };
   }
 
-  _computeFormattedName(reviewerGivenName, reviewerFamilyName) {
-    if (reviewerGivenName && reviewerFamilyName) {
-      return (reviewerGivenName + ' ' + reviewerFamilyName).trim();
-    } else {
-      return 'anonymous';
-    }
+  _computeFormattedName(fullName) {
+    return fullName || 'anonymous';
   }
 
   _computeFormattedTime(time) {

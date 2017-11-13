@@ -17,7 +17,7 @@ export default class TutoriaTransitionManager {
         const record = this._transitionRecords[propertyName];
 
         delete this._transitionRecords[propertyName];
-        record.rejectPromise();
+        record.rejectPromise('abort transition');
 
         let currentComputedValue = window.getComputedStyle(element).getPropertyValue(propertyName);
         this.element.style.setProperty(propertyName, currentComputedValue);

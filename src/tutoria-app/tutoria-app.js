@@ -1,13 +1,13 @@
-import {Element as PolymerElement} from '../../node_modules/@polymer/polymer/polymer-element.js';
+import TutoriaElement from '../tutoria-element/tutoria-element.js';
 
 import '../../node_modules/@polymer/app-route/app-location.js';
 
+import '../tutoria-api/tutoria-auth-manager.js';
 import '../tutoria-dialog/tutoria-dialog-container.js';
 import '../tutoria-shell/tutoria-shell.js';
 import '../tutoria-pages/tutoria-pages.js';
 
 const template = `
-
 <style>
 :host {
   display: block;
@@ -22,6 +22,8 @@ const template = `
 </style>
 
 <app-location path="{{_path}}" query-params="{{_queryParams}}"></app-location>
+
+<tutoria-auth-manager id="auth"></tutoria-auth-manager>
 
 <tutoria-shell
   short-toolbar="{{_shortToolbar}}"
@@ -42,7 +44,7 @@ const template = `
 <tutoria-dialog-container id="dialog-container"></tutoria-dialog-container>
 `;
 
-export default class TutoriaApp extends PolymerElement {
+export default class TutoriaApp extends TutoriaElement {
 
   static get template() {
     return template;

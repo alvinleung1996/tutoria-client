@@ -1,17 +1,23 @@
 import TutoriaDialog, * as TutoriaDialogTemplates from '../tutoria-dialog/tutoria-dialog.js';
 
-import '../../node_modules/@polymer/iron-form/iron-form.js';
-// import '../../node_modules/@polymer/paper-input/paper-input.js';
-
 export const contentStyles = `
 ${TutoriaDialogTemplates.contentStyles}
 <style>
-#form {
+#bill {
   display: grid;
-  justify-content: start;
   grid-template-columns: auto 1fr;
   grid-gap: 8px;
 }
+
+:host(:not([payment-required])) .payment-only {
+  display: none;
+}
+
+.divider {
+  border-top: 1px solid var(--tutoria-divider_color);
+  grid-column: 1 / -1;
+}
+
 .value {
   justify-self: end;
 }
@@ -19,12 +25,17 @@ ${TutoriaDialogTemplates.contentStyles}
 `;
 
 export const contentTemplate = `
-<iron-form>
-  <form id="form">
-    <label>Time</label>
-    <div id="period" class="value">[[_period]]</div>
-  </form>
-</iron-form>
+<div id="bill">
+
+  <label for="period" class="label">Time: </label>
+  <div id="period" class="value">[[_computePeriodText(confirmedBill.startTime, confirmedBill.endTime)]]</div>
+
+  <div class="divider payment-only"></div>
+
+  <label class="label payment-only" for="account-balance">Account balance: </label>
+  <div id="account-balance" class="value payment-only">$ [[confirmedBill.balance]]</div>
+
+</div>
 `;
 
 export default class TutoriaTutorPageTutorialConfirmedDialog extends TutoriaDialog {
@@ -42,29 +53,36 @@ export default class TutoriaTutorPageTutorialConfirmedDialog extends TutoriaDial
         type: String,
         value: 'Tutorial Confirmed!'
       },
-      startDate: Date,
-      endDate: Date,
 
-      _period: {
-        type: String,
-        computed: '_computePeriod(startDate, endDate)'
+      confirmedBill: Object,
+
+      paymentRequired: {
+        type: Boolean,
+        computed: '_computePaymentRequired(confirmedBill.tutorFee)',
+        reflectToAttribute: true
       }
     }
   }
 
   ready() {
     super.ready();
-    this.actions = [
-      {
+    this.buttons = [{
         text: 'OK',
+        style: 'color: dodgerblue;',
         callback: () => this._onOkButtonClicked()
-      }
-    ];
+    }];
   }
 
 
-  _computePeriod(startDate, endDate) {
-    return `${startDate.getDate()}/${endDate.getMonth()} ${startDate.getHours().toString().padStart(2,'0')}:${startDate.getMinutes().toString().padStart(2,'0')} - ${endDate.getHours().toString().padStart(2,'0')}:${endDate.getMinutes().toString().padStart(2,'0')}`;
+  _computePaymentRequired(tutorFee) {
+    return tutorFee > 0;
+  }
+
+  _computePeriodText(startTime, endTime) {
+    if (!startTime || !endTime) {
+      return '';
+    }
+    return `${this._getFormattedDate(startTime)} ${this._getFormattedTime(startTime)} - ${this._getFormattedTime(endTime)}`;
   }
 
   
@@ -79,6 +97,15 @@ export default class TutoriaTutorPageTutorialConfirmedDialog extends TutoriaDial
   _onOkButtonClicked() {
     this.hide()
     .then(this._resolveDialog)
+  }
+
+
+  _getFormattedDate(time) {
+    return `${time.getDate()}/${time.getMonth()}`;
+  }
+
+  _getFormattedTime(time) {
+    return `${time.getHours().toString().padStart(2,'0')}:${time.getMinutes().toString().padStart(2,'0')}`;
   }
 
 }

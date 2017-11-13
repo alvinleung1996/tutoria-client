@@ -351,7 +351,7 @@ html {
 
 
 body {
-  background-color: var(--tutoria-background--primary_color);
+  background-color: var(--tutoria-background--secondary_color);
 }
 
 </style>

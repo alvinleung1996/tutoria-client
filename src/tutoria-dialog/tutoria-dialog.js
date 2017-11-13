@@ -1,5 +1,4 @@
 import TutoriaElement from '../tutoria-element/tutoria-element.js';
-
 import '../../node_modules/@polymer/polymer/lib/elements/dom-repeat.js';
 import '../../node_modules/@webcomponents/shadycss/apply-shim.min.js';
 
@@ -43,15 +42,18 @@ export const baseTemplate = `
   flex: 0 0 auto;
 }
 </style>
+%%otherTemplate%%
+%%headerStyles%%
+%%contentStyles%%
+%%footerStyles%%
 <div id="container">
-  %%headerStyles%%
   <header id="header">%%headerTemplate%%</header>
-  %%contentStyles%%
   <section id="content">%%contentTemplate%%</section>
-  %%footerStyles%%
   <footer id="footer">%%footerTemplate%%</footer>
 </div>
 `;
+
+export const otherTemplate = '';
 
 export const headerStyles = `
 <style>
@@ -74,6 +76,10 @@ export const contentStyles = `
   @apply --tutoria-text--body1_font;
   color: var(--tutoria-text--secondary_color);
 }
+:host([transiting]) #content,
+:host(:not([visible])) #content {
+  overflow-y: hidden;
+}
 </style>
 `;
 export const contentTemplate = `
@@ -87,11 +93,20 @@ export const footerStyles = `
     display: flex;
     justify-content: flex-end;
   }
+  .button {
+    @apply --tutoria-text--button_font;
+  }
+  .button[disabled] {
+    --paper-button-disabled: {
+      color: var(--tutoria-text--disabled_color);
+      background: transparent;
+    }
+  }
 </style>
 `;
 export const footerTemplate = `
-<template is="dom-repeat" id="action-buttons-renderer" items="[[actions]]" as="action">
-  <paper-button class="action-button" on-click="_onActionButtonClicked">[[action.text]]</paper-button>
+<template is="dom-repeat" id="buttons-renderer" items="[[buttons]]" as="button">
+  <paper-button class="button" style$="[[_computeButtonStyle(button.disabled, button.style, button.disabledStyle)]]" raised="[[button.raised]]" disabled="[[button.disabled]]" on-click="_onButtonClicked">[[button.text]]</paper-button>
 </template>
 `;
 
@@ -100,6 +115,7 @@ export default class TutoriaDialog extends TutoriaElement {
   static generateTemplate(options) {
     let computedOptions = {};
     ({
+      otherTemplate: computedOptions.otherTemplate = otherTemplate,
       headerStyles: computedOptions.headerStyles = headerStyles,
       headerTemplate: computedOptions.headerTemplate = headerTemplate,
       contentStyles: computedOptions.contentStyles = contentStyles,
@@ -109,6 +125,7 @@ export default class TutoriaDialog extends TutoriaElement {
     } = options);
     
     return baseTemplate
+    .replace('%%otherTemplate%%', computedOptions.otherTemplate)
     .replace('%%headerStyles%%', computedOptions.headerStyles)
     .replace('%%headerTemplate%%', computedOptions.headerTemplate)
     .replace('%%contentStyles%%', computedOptions.contentStyles)
@@ -177,6 +194,11 @@ export default class TutoriaDialog extends TutoriaElement {
     this.style.setProperty('height', '0px');
   }
 
+
+  _computeButtonStyle(disabled, style, disabledStyle) {
+    return disabled ? disabledStyle : style;
+  }
+
   show(animated = true) {
     return new Promise((resolve, reject) => {
       window.dispatchEvent(new CustomEvent('tutoria-dialog-show', {
@@ -209,10 +231,10 @@ export default class TutoriaDialog extends TutoriaElement {
       opened: true,
       transiting: true
     }, true);
-    // Force action button to be rendered
-    // so that the transition can see the button height
-    let actionButtonRenderer = this.$.footer.querySelector('#action-buttons-renderer');
-    if (actionButtonRenderer) actionButtonRenderer.render();
+
+    let buttonsRenderer = this.$['buttons-renderer'];
+    if (buttonsRenderer) buttonsRenderer.render();
+    
     return this._transitionManager.transit({
       'width': {
         value: this.width,
@@ -271,10 +293,10 @@ export default class TutoriaDialog extends TutoriaElement {
 
 
 
-  _onActionButtonClicked(evt) {
-    const action = evt.model.action;
-    if (action.callback) {
-      action.callback(this, action);
+  _onButtonClicked(evt) {
+    const button = evt.model.button;
+    if (button.callback) {
+      button.callback(this, button);
     }
   }
 
