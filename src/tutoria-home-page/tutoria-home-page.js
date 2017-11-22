@@ -13,7 +13,6 @@ export const template = `
 <style>
 :host {
   display: block;
-  height: 500px;
 }
 
 section {

@@ -58,7 +58,7 @@ export default class TutoriaSignUpDialog extends TutoriaDialog {
       },
       width: {
         type: String,
-        value: '400px'
+        value: '500px'
       },
 
       _lastAjaxResponse: {
