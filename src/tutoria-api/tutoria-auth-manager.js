@@ -39,7 +39,8 @@ export default class TutoriaAuthManager extends TutoriaElement {
     };
   }
 
-  downLoggedInUserProfile() {
+  downLoggedInUserProfile() { return this.refreshUserProfile(); }
+  refreshUserProfile() {
     if (this._checkingLoginRequest) {
       return;
     }

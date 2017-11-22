@@ -6,6 +6,7 @@ import '../../node_modules/@polymer/paper-input/paper-input.js';
 
 import '../tutoria-api/tutoria-api-ajax.js';
 import { authManager } from '../tutoria-api/tutoria-auth-manager.js';
+import { redirectTo } from  '../tutoria-api/tutoria-redirect-utils.js';
 
 
 export const otherTemplate = `
@@ -124,6 +125,13 @@ export default class TutoriaSignUpDialog extends TutoriaDialog {
           dialog: this
         }
       }));
+    }).then(r => {
+      // TODO Better way to preserve the username and password which has just sent to the server?
+      let username = this.$['username-input'].value;
+      let password = this.$['password-input'].value;
+      return authManager.login(username, password);
+    }).then(() => {
+      redirectTo(`${this.rootPath}profile`);
     });
   }
 

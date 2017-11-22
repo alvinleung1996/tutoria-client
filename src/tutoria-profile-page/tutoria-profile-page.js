@@ -4,27 +4,39 @@ import '../../node_modules/@webcomponents/shadycss/apply-shim.min.js';
 import '../../node_modules/@polymer/iron-ajax/iron-ajax.js';
 import '../../node_modules/@polymer/iron-form/iron-form.js';
 import '../../node_modules/@polymer/paper-button/paper-button.js';
+import '../../node_modules/@polymer/paper-checkbox/paper-checkbox.js';
 import '../../node_modules/@polymer/paper-input/paper-input.js';
+import '../../node_modules/@polymer/paper-input/paper-textarea.js';
 
 import '../tutoria-api/tutoria-api-ajax.js';
+import '../tutoria-api/tutoria-auth-manager.js';
 
 export const template = `
 <style>
+:host {
+  display: block;
+}
 
+#content {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+:host([_show-tutor-input]) #register-tutor-button {
+  display: none;
+}
+:host(:not([_show-tutor-input])) #tutor-input {
+  display: none;
+}
 </style>
 
-<tutoria-api-ajax>
-  <iron-ajax id="user-profile-ajax"
-    method="GET"
-    url$="[[apiRootPath]]users/me"
-    handle-as="json"
-    last-response="{{_lastUserProfileAjaxResponse}}"
-    last-error="{{_lastUserProfileAjaxError}}">
-  </iron-ajax>
-</tutoria-api-ajax>
+<tutoria-auth-manager id="auth-manager"
+  user-profile="{{_userProfile}}">
+</tutoria-auth-manager>
 
 <tutoria-api-ajax>
-  <iron-ajax id="update-user-ajax"
+  <iron-ajax id="update-user-profile-ajax"
     method="PUT"
     url$="[[apiRootPath]]users/me"
     content-type="application/json"
@@ -37,7 +49,7 @@ export const template = `
 <tutoria-api-ajax>
   <iron-ajax id="tutor-profile-ajax"
     method="GET"
-    url$="[[apiRootPath]]users/me"
+    url$="[[apiRootPath]]tutors/me"
     handle-as="json"
     last-response="{{_lastTutorProfileAjaxResponse}}"
     last-error="{{_lastTutorProfileAjaxError}}">
@@ -47,7 +59,7 @@ export const template = `
 <tutoria-api-ajax>
   <iron-ajax id="update-tutor-profile-ajax"
     method="PUT"
-    url$="[[apiRootPath]]tutor/me"
+    url$="[[apiRootPath]]tutors/me"
     content-type="application/json"
     handle-as="json"
     last-response="{{_lastUpdateTutorProfileAjaxResponse}}"
@@ -55,18 +67,45 @@ export const template = `
   </iron-ajax>
 </tutoria-api-ajax>
 
-<iron-form id="user-iron-form" on-iron-form-presubmit="_onUserIronFormPresubmit">
-  <form>
-    <paper-input id="username-input" label="username" name="username" required value="[[_userProfile.username]]" on-keypress="_onUserInputKeyPress"></paper-input>
-    <paper-input id="password-input" label="password" name="password" type="password" on-keypress="_onUserInputKeyPress"></paper-input>
-    <paper-input id="email-input" label="email" name="email" required value="[[_userProfile.email]]" on-keypress="_onUserInputKeyPress"></paper-input>
-    <paper-input id="given-name-input" label="given name" name="givenName" required value="[[_userProfile.givenName]]" on-keypress="_onUserInputKeyPress"></paper-input>
-    <paper-input id="family-name-input" label="family name" name="familyName" required value="[[_userProfile.familyName]]" on-keypress="_onUserInputKeyPress"></paper-input>
-    <paper-input id="phone-number-input" label="phone number" name="phoneNumber" required type="number" value="[[_userProfile.phoneNumber]]" on-keypress="_onUserInputKeyPress"></paper-input>
-  </form>
-</iron-form>
+<div id="content">
+  <iron-form id="user-iron-form" on-iron-form-presubmit="_onUserIronFormPresubmit">
+    <form>
+      <paper-input id="username-input" label="username" name="username" required value="[[_userProfile.username]]" on-keypress="_onUserInputKeyPress"></paper-input>
+      <paper-input id="password-input" label="password" name="password" type="password" on-keypress="_onUserInputKeyPress"></paper-input>
+      <paper-input id="email-input" label="email" name="email" required value="[[_userProfile.email]]" on-keypress="_onUserInputKeyPress"></paper-input>
+      <paper-input id="given-name-input" label="given name" name="givenName" required value="[[_userProfile.givenName]]" on-keypress="_onUserInputKeyPress"></paper-input>
+      <paper-input id="family-name-input" label="family name" name="familyName" required value="[[_userProfile.familyName]]" on-keypress="_onUserInputKeyPress"></paper-input>
+      <paper-input id="phone-number-input" label="phone number" name="phoneNumber" required type="number" value="[[_userProfile.phoneNumber]]" on-keypress="_onUserInputKeyPress"></paper-input>
+    </form>
+  </iron-form>
 
-<paper-button id="update-user-profile-button" on-click="_onUpdateUserProfileButtonClick">Update</paper-button>
+  <paper-button id="update-user-profile-button" on-click="_onUpdateUserProfileButtonClick">Update</paper-button>
+
+  <paper-button id="register-tutor-button" on-click="_onRegisterTutorButtonClick">Register as tutor</paper-button>
+
+  <div id="tutor-input">
+    <iron-form id="tutor-iron-form" on-iron-form-presubmit="_onTutorIronFormPresubmit">
+      <form>
+        <div id="tutor-type-input">
+          <label for="tutor-type-input_select">tutor type:</label>
+          <select id="tutor-type-input_select" label="tutor type" name="type" selected="[[_tutorProfile.type]]">
+            <option value="contracted">Contracted</option>
+            <option value="private">Private</option>
+          </select>
+        </div>
+        <paper-checkbox name="activated" checked="[[_toBoolean(_tutorProfile.activated)]]">Activate tutor profile</paper-checkbox>
+        <paper-input id="subject-tags-input" label="subject tags" name="subjectTags" value="[[_arrayToString(_tutorProfile.subjectTags)]]" on-keypress="_onTutorInputKeyPress"></paper-input>
+        <paper-input id="university-input" label="university" name="university" required value="[[_tutorProfile.university]]" on-keypress="_onTutorInputKeyPress"></paper-input>
+        <paper-input id="course-codes-input" label="course codes" name="courseCodes" required value="[[_arrayToString(_tutorProfile.courseCodes)]]" on-keypress="_onTutorInputKeyPress"></paper-input>
+        <paper-input id="hourly-rate-input" label="hourly-rate" name="hourlyRate" required type="number" min="0" step="10" value="[[_toFloat(_tutorProfile.hourlyRate)]]" on-keypress="_onTutorInputKeyPress"></paper-input>
+        <paper-textarea id="biography-input" label="biography" name="biography" value="[[_tutorProfile.biography]]"></paper-textarea>
+      </form>
+    </iron-form>
+
+    <paper-button id="update-user-profile-button" on-click="_onUpdateTutorProfileButtonClick">[[_ifElse(_isTutor, 'Update', 'Register')]]</paper-button>
+  </div>
+
+</div>
 `;
 
 export default class TutoriaProfilePage extends TutoriaElement {
@@ -82,27 +121,75 @@ export default class TutoriaProfilePage extends TutoriaElement {
         observer: '_onVisibleChanged'
       },
 
-      _userProfile: {
+      _tutorProfile: {
         type: Object,
-        computed: '_computeUserProfile(_lastUserProfileAjaxResponse)'
+        computed: '_computeTutorProfile(_lastTutorProfileAjaxResponse)'
       },
 
+      _isTutor: {
+        type: Boolean,
+        computed: '_computeIsTutor(_userProfile.roles.*)',
+        observer: '_onIsTutorChanged'
+      },
+      _showTutorInput: {
+        type: Boolean,
+        value: false,
+        observer: '_onShowTutorInputChanged',
+        reflectToAttribute: true
+      },
+
+
+      _lastUpdateUserProfileAjaxResponse: {
+        observer: '_onLastUpdateUserProfileAjaxResponseChanged'
+      },
       _lastUpdateUserProfileAjaxError: {
         observer: '_onLastUpdateUserProfileAjaxErrorChanged'
-      }
+      },
+
+      _lastUpdateTutorProfileAjaxResponse: {
+        observer: '_onLastUpdateTutorProfileAjaxResponseChanged'
+      },
+      _lastUpdateTutorProfileAjaxError: {
+        observer: '_onLastUpdateTutorProfileAjaxErrorChanged'
+      },
     };
   }
 
 
   _onVisibleChanged(visible) {
-    this.$['user-profile-ajax'].generateRequest();
+    
   }
 
 
 
-  _computeUserProfile(response) {
-    return response.data;
+  _toBoolean(value) {
+    return Boolean(value);
   }
+
+  _arrayToString(value) {
+    if (Array.isArray(value)) {
+      return value.join(', ');
+    } else {
+      return undefined;
+    }
+  }
+
+  _toFloat(value) {
+    if (value === undefined || value === null) {
+      return undefined;
+    }
+    try {
+      return Number.parseFloat(value);
+    } catch (e) {
+      return undefined;
+    }
+  }
+
+  _ifElse(cond, truthy, falsy) {
+    return cond ? truthy : falsy;
+  }
+
+
 
   _onUserInputKeyPress(evt) {
     if (evt.key === 'Enter') {
@@ -126,8 +213,8 @@ export default class TutoriaProfilePage extends TutoriaElement {
       }
     }
 
-    this.$['update-user-ajax'].body = params;
-    this.$['update-user-ajax'].generateRequest();
+    this.$['update-user-profile-ajax'].body = params;
+    this.$['update-user-profile-ajax'].generateRequest();
   }
 
   _onLastUpdateUserProfileAjaxErrorChanged(errorResponse) {
@@ -136,7 +223,7 @@ export default class TutoriaProfilePage extends TutoriaElement {
     if (!error) {
       return;
     }
-    // TODO more error type e.g. username not available
+    
     this._updateInput(this.$['username-input'], 'username', error);
     this._updateInput(this.$['password-input'], 'password', error);
     this._updateInput(this.$['email-input'], 'email', error);
@@ -145,8 +232,104 @@ export default class TutoriaProfilePage extends TutoriaElement {
     this._updateInput(this.$['phone-number-input'], 'phoneNumber', error);
   }
 
+  _onLastUpdateUserProfileAjaxResponseChanged(response) {
+    if (response) {
+      this.$['auth-manager'].refreshUserProfile();
+    }
+  }
+
+
+
+  _computeIsTutor(rolesRecord) {
+    const roles = rolesRecord.base;
+    return Boolean(roles && roles.includes('tutor'));
+  }
+
+  _onIsTutorChanged(isTutor) {
+    if (isTutor) {
+      this._showTutorInput = true;
+    }
+  }
+
+  _onRegisterTutorButtonClick(evt) {
+    this._showTutorInput = true;
+  }
+
+  _onShowTutorInputChanged(showTutorInput) {
+    if (showTutorInput) {
+      this.$['tutor-profile-ajax'].generateRequest();
+    }
+  }
+
+
+
+
+  _computeTutorProfile(response) {
+    return response && response.data;
+  }
+
+  _onTutorInputKeyPress(evt) {
+    if (evt.key === 'Enter') {
+      this.$['tutor-iron-form'].submit();
+    }
+  }
+
+  _onUpdateTutorProfileButtonClick(evt) {
+    this.$['tutor-iron-form'].submit();
+  }
+
+  _onTutorIronFormPresubmit(evt) {
+    evt.preventDefault();
+    const ironForm = evt.target;
+
+    let serializeForm = ironForm.serializeForm();
+    let params = {
+      activated: false
+    };
+    for (let key in serializeForm) {
+      if (serializeForm[key]) {
+        switch (key) {
+          case 'activated':
+            params[key] = Boolean(serializeForm[key]);
+            break;
+          case 'subjectTags':
+          case 'courseCodes':
+            params[key] = serializeForm[key].split(',')
+                .map(s => s.trim())
+                .filter(s => Boolean(s));
+            break;
+          default:
+            params[key] = serializeForm[key];
+        }
+      }
+    }
+
+    this.$['update-tutor-profile-ajax'].body = params;
+    this.$['update-tutor-profile-ajax'].generateRequest();
+  }
+
+  _onLastUpdateTutorProfileAjaxErrorChanged(errorResponse) {
+    const error = errorResponse && errorResponse.response && errorResponse.response.error;
+
+    this._updateInput(this.$['subject-tags-input'], 'subjectTags', error);
+    this._updateInput(this.$['university-input'], 'university', error);
+    this._updateInput(this.$['course-codes-input'], 'courseCodes', error);
+    this._updateInput(this.$['hourly-rate-input'], 'hourlyRate', error);
+    this._updateInput(this.$['biography-input'], 'biography', error);
+  }
+
+  _onLastUpdateTutorProfileAjaxResponseChanged(response) {
+    if (response) {
+      this.$['auth-manager'].refreshUserProfile();
+      this.$['tutor-profile-ajax'].generateRequest();
+    }
+  }
+
+
+
+
   _updateInput(input, propertyName, error) {
-    let isError = propertyName in error;
+    let isError = error && propertyName in error;
     input.setProperties({
       invalid: isError,
       errorMessage: isError ? error[propertyName] : undefined
