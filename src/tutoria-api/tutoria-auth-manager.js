@@ -79,7 +79,8 @@ export default class TutoriaAuthManager extends TutoriaElement {
     });
   }
 
-  logIn(username, password) {
+  logIn(u, p) { return this.login(u, p); }
+  login(username, password) {
     let ajax = document.createElement('iron-ajax');
     ajax.url = this.apiRootPath + 'users/' + username + '/login-session';
     ajax.body = { password: password };
@@ -114,7 +115,8 @@ export default class TutoriaAuthManager extends TutoriaElement {
     });
   }
 
-  logOut() {
+  logOut() { return this.logout(); }
+  logout() {
     if (!this.loggedIn) {
       return Promise.resolve();
     }

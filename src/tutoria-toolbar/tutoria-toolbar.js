@@ -13,6 +13,7 @@ import { authManager } from '../tutoria-api/tutoria-auth-manager.js';
 import '../tutoria-icons/tutoria-icons.js';
 import '../tutoria-log-in-dialog/tutoria-log-in-dialog.js';
 import '../tutoria-search-box/tutoria-search-box.js';
+import '../tutoria-sign-up-dialog/tutoria-sign-up-dialog.js';
 import '../tutoria-styles/tutoria-styles.js';
 import '../tutoria-user-box/tutoria-user-box.js';
 
@@ -216,7 +217,9 @@ export default class TutoriaToolbar extends mixinBehaviors(IronResizableBehavior
   }
 
   _onSignUpButtonClick(evt) {
-    alert('Not yet implemented 😎');
+    // alert('Not yet implemented 😎');
+    let dialog = document.createElement('tutoria-sign-up-dialog');
+    dialog.show();
   }
 
   _onSearchButtonClick(evt) {
