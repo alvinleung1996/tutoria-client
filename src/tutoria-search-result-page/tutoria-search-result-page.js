@@ -54,6 +54,7 @@ export const template = `
   class="content"
   columns="[[_tableColumns]]"
   data="[[_tableData]]"
+  clickable
   on-tutoria-table-row-click="_onTableRowClick">
 </tutoria-table>
 `;

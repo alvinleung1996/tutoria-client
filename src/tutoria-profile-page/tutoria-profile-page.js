@@ -35,7 +35,7 @@ section {
 }
 
 header {
-  @apply --tutoria-text--display1_font;
+  @apply --tutoria-text--title_font;
   color: var(--tutoria-text--primary_color);
 }
 

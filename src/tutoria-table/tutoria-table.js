@@ -63,16 +63,21 @@ export const template = `
     border-top: var(--tutoria-divider_color) 1px solid;
     transition: background-color 200ms ease-out;
   }
+  .row[clickable] {
+    cursor: pointer;
+  }
   .row:hover {
     background-color: rgba(var(--tutoria-text--base_color_r),
                            var(--tutoria-text--base_color_g),
                            var(--tutoria-text--base_color_b),
                            0.1);
-    cursor: pointer;
   }
 
   .ripple {
     color: var(--tutoria-text--base_color);
+  }
+  .row:not([clickable]) .ripple {
+    display: none;
   }
   
   .cell {
@@ -110,7 +115,8 @@ export const template = `
 
     <div class="row"
       style$="[[_computeRowStyle(itemIndex)]]"
-      on-click="_onRowClick">
+      on-click="_onRowClick"
+      clickable$="[[clickable]]">
       <paper-ripple class="ripple" recenters></paper-ripple>
     </div>
 
@@ -157,6 +163,11 @@ export default class TutoriaTable extends TutoriaElement {
       _sort: {
         type: Function,
         computed: '_computeSort(sortBy, sortByDescending, columns.*)'
+      },
+
+      clickable: {
+        type: Boolean,
+        value: false
       }
     };
   }
@@ -244,6 +255,9 @@ export default class TutoriaTable extends TutoriaElement {
   }
 
   _onRowClick(evt) {
+    if (!this.clickable) {
+      return;
+    }
     this.dispatchEvent(new CustomEvent('tutoria-table-row-click', {
       detail: {
         item: evt.model.item
