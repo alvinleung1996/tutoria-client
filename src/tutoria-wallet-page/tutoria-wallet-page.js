@@ -2,10 +2,14 @@ import TutoriaElement from '../tutoria-element/tutoria-element.js';
 import '../../node_modules/@webcomponents/shadycss/apply-shim.min.js';
 
 import '../../node_modules/@polymer/iron-ajax/iron-ajax.js';
+import '../../node_modules/@polymer/paper-icon-button/paper-icon-button.js';
 
 import '../tutoria-api/tutoria-api-ajax.js';
+import '../tutoria-icons/tutoria-icons.js';
 import '../tutoria-styles/tutoria-styles.js';
 import '../tutoria-table/tutoria-table.js';
+
+import './tutoria-wallet-add-money-dialog.js';
 
 export const template = `
 <style>
@@ -37,14 +41,34 @@ export const template = `
   #balance {
     padding-left: 16px;
     padding-right: 16px;
+    display: flex;
+    align-items: center;
+  }
+  #balance-text {
     @apply --tutoria-text--display1_font;
     color: var(--tutoria-text--secondary_color);
+  }
+  #add-money-button {
+    color: rgba(var(--tutoria-text--base_color_r),
+                var(--tutoria-text--base_color_g),
+                var(--tutoria-text--base_color_b),
+                0.3);
+    transition: color 200ms ease-out;
+  }
+  #add-money-button:hover,
+  #add-money-button:active {
+    color: rgba(49, 179, 49, 1);
+    --paper-icon-button-ink-color: rgba(49, 179, 49, 1);
   }
 
   #transactions-table {
     @apply --tutoria-shadow--elevation-2;
     border-radius: 4px;
     background-color: var(--tutoria-background--primary_color);
+  }
+
+  paper-icon-button {
+    display: block;
   }
 </style>
 
@@ -71,7 +95,7 @@ export const template = `
 <section>
   <div class="section-content">
     <header>Wallet</header>
-    <div id="balance">$ [[_wallet.balance]]</div>
+    <div id="balance"><span id="balance-text">$ [[_wallet.balance]]</span><paper-icon-button id="add-money-button" icon="tutoria:add-money" on-click="_onAddMoneyButtonClick"></paper-icon-button></div>
   </div>
 </section>
 
@@ -81,8 +105,7 @@ export const template = `
     <tutoria-table
       id="transactions-table"
       columns="[[_transactionaTableColumns]]"
-      data="[[_transactionsTableData]]"
-      on-tutoria-table-row-click="_onTableRowClick">
+      data="[[_transactionsTableData]]">
     </tutoria-table>
   </div>
 </section>
@@ -117,10 +140,10 @@ export default class TutoriaWalletPage extends TutoriaElement {
         type: Array,
         value: () => [{
           headerText: 'Withdraw From',
-          propertyName: 'withdrawFrom',
+          propertyName: 'withdrawFromUser.fullName',
         }, {
           headerText: 'Deposit To',
-          propertyName: 'depositTo'
+          propertyName: 'depositToUser.fullName'
         }, {
           headerText: 'Amount',
           propertyName: 'amount',
@@ -131,7 +154,10 @@ export default class TutoriaWalletPage extends TutoriaElement {
           headerText: 'Time',
           propertyName: 'time',
           alignRight: true,
-          sortingFunction: (a, b, descending) => descending ? (b.time - a.time) : (a.time - b.time)
+          sortingFunction: (a, b, descending) => descending ? (b.time - a.time) : (a.time - b.time),
+          onBindCallback: (cell, item, column) => {
+            cell.textContent = item.time.toLocaleString();
+          }
         }]
       },
       _transactionsTableData: {
@@ -143,9 +169,13 @@ export default class TutoriaWalletPage extends TutoriaElement {
 
   _onVisibleChanged(visible) {
     if (visible) {
+      this._loadData();
+    }
+  }
+
+  _loadData() {
       this.$['wallet-ajax'].generateRequest();
       this.$['transactions-ajax'].generateRequest();
-    }
   }
 
 
@@ -172,6 +202,17 @@ export default class TutoriaWalletPage extends TutoriaElement {
     });
     return transactions;
   }
+
+
+
+  _onAddMoneyButtonClick(evt) {
+    let dialog = document.createElement('tutoria-wallet-add-money-dialog');
+    dialog.addEventListener('tutoria-wallet-add-money-dialog-success', d => {
+      this._loadData();
+    });
+    dialog.show();
+  }
+
 }
 
 window.customElements.define('tutoria-wallet-page', TutoriaWalletPage);

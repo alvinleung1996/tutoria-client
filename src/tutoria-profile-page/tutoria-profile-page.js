@@ -257,7 +257,13 @@ export default class TutoriaProfilePage extends TutoriaElement {
     let serializeForm = ironForm.serializeForm();
     let params = {};
     for (let key in serializeForm) {
-      params[key] = serializeForm[key] || '';
+      switch (key) {
+        case 'password':
+          if (serializeForm[key]) params[key] = serializeForm[key];
+          break;
+        default:
+          params[key] = serializeForm[key] || '';
+      }
     }
 
     this.$['update-user-profile-ajax'].body = params;

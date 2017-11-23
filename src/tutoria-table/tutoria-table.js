@@ -311,8 +311,9 @@ export class TutoriaTableCell extends TutoriaElement {
     } else {
       let text = '';
       if ('cellPrefix' in column) text += column.cellPrefix;
-      if (column.propertyName in item) {
-        text += item[column.propertyName];
+      let data = this.get(column.propertyName, item);
+      if (data !== undefined) {
+        text += data;
       }
       if ('cellSuffix' in column) text += column.cellSuffix;
       this.textContent = text;

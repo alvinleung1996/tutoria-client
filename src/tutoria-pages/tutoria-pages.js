@@ -96,6 +96,12 @@ export default class TutoriaPages extends TutoriaElement {
             pageTagName: 'tutoria-wallet-page'
           },
           {
+            pathPattern: /^\/messages$/,
+            requiredRoles: [],
+            importPage: () => import(/* webpackChunkName: "messages-page" */ '../tutoria-messages-page/tutoria-messages-page.js'),
+            pageTagName: 'tutoria-messages-page'
+          },
+          {
             pathPattern: /^/,
             requiredRoles: ['student', 'tutor'],
             importPage: () => import(/* webpackChunkName: "home-page" */ '../tutoria-home-page/tutoria-home-page.js'),
