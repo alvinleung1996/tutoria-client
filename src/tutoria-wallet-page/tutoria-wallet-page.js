@@ -49,6 +49,7 @@ export const template = `
     color: var(--tutoria-text--secondary_color);
   }
   #add-money-button {
+    margin-left: 8px;
     color: rgba(var(--tutoria-text--base_color_r),
                 var(--tutoria-text--base_color_g),
                 var(--tutoria-text--base_color_b),

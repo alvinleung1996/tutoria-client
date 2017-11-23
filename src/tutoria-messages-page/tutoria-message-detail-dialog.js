@@ -57,13 +57,13 @@ ${TutoriaDialogTemplates.contentStyles}
 export const contentTemplate = `
 <div id="meta">
 
-  <span class="label">time:</span>
+  <span class="label">Time:</span>
   <time class="value">[[_dateToString(_messageDetail.time)]]</time>
 
-  <span class="label">sender:</span>
+  <span class="label">Sender:</span>
   <span class="value">[[_messageDetail.sendUser.fullName]]</span>
 
-  <span class="label">receiver:</span>
+  <span class="label">Receiver:</span>
   <span class="value">[[_messageDetail.receiveUser.fullName]]</span>
 
 </div>
