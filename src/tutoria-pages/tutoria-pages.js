@@ -102,6 +102,12 @@ export default class TutoriaPages extends TutoriaElement {
             pageTagName: 'tutoria-messages-page'
           },
           {
+            pathPattern: /^\/tutorials\/(\w+)\/review$/,
+            requiredRoles: [],
+            importPage: () => import(/* webpackChunkName: "tutorial-review-page" */ '../tutoria-tutorial-review-page/tutoria-tutorial-review-page.js'),
+            pageTagName: 'tutoria-tutorial-review-page'
+          },
+          {
             pathPattern: /^/,
             requiredRoles: ['student', 'tutor'],
             importPage: () => import(/* webpackChunkName: "home-page" */ '../tutoria-home-page/tutoria-home-page.js'),

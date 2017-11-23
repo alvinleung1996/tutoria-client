@@ -11,7 +11,7 @@ import '../../node_modules/@polymer/iron-image/iron-image.js';
 
 import { authManager } from '../tutoria-api/tutoria-auth-manager.js';
 import '../tutoria-icons/tutoria-icons.js';
-import '../tutoria-log-in-dialog/tutoria-log-in-dialog.js';
+import '../tutoria-login-dialog/tutoria-login-dialog.js';
 import '../tutoria-search-box/tutoria-search-box.js';
 import '../tutoria-sign-up-dialog/tutoria-sign-up-dialog.js';
 import '../tutoria-styles/tutoria-styles.js';
@@ -212,7 +212,7 @@ export default class TutoriaToolbar extends mixinBehaviors(IronResizableBehavior
   }
 
   _onLogInButtonClick(evt) {
-    let dialog = document.createElement('tutoria-log-in-dialog');
+    let dialog = document.createElement('tutoria-login-dialog');
     dialog.showForResult();
   }
 

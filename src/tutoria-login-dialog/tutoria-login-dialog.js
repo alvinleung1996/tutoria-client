@@ -22,7 +22,7 @@ export const contentTemplate = `
 </iron-form>
 `;
 
-export default class TutoriaLogInDialog extends TutoriaDialog {
+export default class TutoriaLoginDialog extends TutoriaDialog {
 
   static get template() {
     return TutoriaDialog.generateTemplate({
@@ -97,4 +97,4 @@ export default class TutoriaLogInDialog extends TutoriaDialog {
 
 }
 
-window.customElements.define('tutoria-log-in-dialog', TutoriaLogInDialog);
+window.customElements.define('tutoria-login-dialog', TutoriaLoginDialog);

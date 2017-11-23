@@ -141,7 +141,7 @@ paper-button {
             <option value="private">Private</option>
           </select>
         </div>
-        <paper-checkbox name="activated" checked="[[_toBoolean(_tutorProfile.activated)]]">Activate tutor profile</paper-checkbox>
+        <paper-checkbox id="activated-input" name="activated" checked="[[_toBoolean(_tutorProfile.activated)]]">Activate tutor profile</paper-checkbox>
         <paper-input id="subject-tags-input" label="subject tags" name="subjectTags" value="[[_arrayToString(_tutorProfile.subjectTags)]]" on-keypress="_onTutorInputKeyPress"></paper-input>
         <paper-input id="university-input" label="university" name="university" required value="[[_tutorProfile.university]]" on-keypress="_onTutorInputKeyPress"></paper-input>
         <paper-input id="course-codes-input" label="course codes" name="courseCodes" required value="[[_arrayToString(_tutorProfile.courseCodes)]]" on-keypress="_onTutorInputKeyPress"></paper-input>
@@ -168,6 +168,13 @@ export default class TutoriaProfilePage extends TutoriaElement {
       visible: {
         type: Boolean,
         observer: '_onVisibleChanged'
+      },
+
+      pageTitle: {
+        type: String,
+        value: 'Profile',
+        readOnly: true,
+        notify: true
       },
 
       _tutorProfile: {
@@ -271,7 +278,7 @@ export default class TutoriaProfilePage extends TutoriaElement {
   }
 
   _onLastUpdateUserProfileAjaxErrorChanged(errorResponse) {
-    const error = errorResponse.response.error;
+    const error = errorResponse && errorResponse.response && errorResponse.response.error;
 
     if (!error) {
       return;
