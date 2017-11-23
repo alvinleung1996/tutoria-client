@@ -58,8 +58,8 @@ export const template = `
   }
   #add-money-button:hover,
   #add-money-button:active {
-    color: rgba(49, 179, 49, 1);
-    --paper-icon-button-ink-color: rgba(49, 179, 49, 1);
+    color: green;
+    --paper-icon-button-ink-color: green;
   }
 
   #transactions-table {

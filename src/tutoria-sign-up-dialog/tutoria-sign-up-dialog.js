@@ -141,7 +141,7 @@ export default class TutoriaSignUpDialog extends TutoriaDialog {
     if (!error) {
       return;
     }
-    // TODO more error type e.g. username not available
+    
     this._updateInput(this.$['username-input'], 'username', error);
     this._updateInput(this.$['password-input'], 'password', error);
     this._updateInput(this.$['email-input'], 'email', error);
