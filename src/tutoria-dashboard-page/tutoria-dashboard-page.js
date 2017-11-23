@@ -7,7 +7,7 @@ import '../tutoria-api/tutoria-api-ajax.js';
 import '../tutoria-dialog/tutoria-dialog.js';
 import '../tutoria-timetable/tutoria-timetable.js';
 
-import './tutoria-home-page-tutorial-detail-dialog.js';
+import './tutoria-tutorial-detail-dialog.js';
 
 export const template = `
 <style>
@@ -61,7 +61,7 @@ article {
 </section>
 `;
 
-export default class TutoriaHome extends TutoriaElement {
+export default class TutoriaDashboard extends TutoriaElement {
 
   static get template() {
     return template;
@@ -136,7 +136,7 @@ export default class TutoriaHome extends TutoriaElement {
   }
 
   _showTutorialDetailDialog(event) {
-    const dialog = document.createElement('tutoria-home-page-tutorial-detail-dialog');
+    const dialog = document.createElement('tutoria-tutorial-detail-dialog');
     dialog.event = event;
     dialog.showForResult()
     .then(() => {
@@ -146,4 +146,4 @@ export default class TutoriaHome extends TutoriaElement {
 
 }
 
-window.customElements.define('tutoria-home-page', TutoriaHome);
+window.customElements.define('tutoria-dashboard-page', TutoriaDashboard);

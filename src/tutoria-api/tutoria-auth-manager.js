@@ -4,6 +4,8 @@ import '../../node_modules/@polymer/iron-ajax/iron-ajax.js';
 
 import '../tutoria-meta/tutoria-meta.js';
 
+import { redirectTo } from './tutoria-redirect-utils.js';
+
 export const template = `
 <style>
   :host {
@@ -96,6 +98,7 @@ export default class TutoriaAuthManager extends TutoriaElement {
       if (r === this._checkingLoginRequest) {
         this._checkingLoginRequest = null;
         console.info('Login success!');
+        redirectTo(`${this.rootPath}dashboard`);
         this.downLoggedInUserProfile();
       }
       return Promise.resolve(r);
@@ -138,6 +141,7 @@ export default class TutoriaAuthManager extends TutoriaElement {
           userProfile: null
         });
         console.info('Logout success!');
+        redirectTo(`${this.rootPath}`);
       }
       return Promise.resolve(r);
       

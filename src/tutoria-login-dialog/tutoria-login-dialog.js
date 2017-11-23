@@ -87,7 +87,9 @@ export default class TutoriaLoginDialog extends TutoriaDialog {
     authManager.logIn(params.username, params.password)
     .then(() => {
       // Login success
-      this.hide().then(this._resolveDialog);
+      this.hide().then(() => {
+        return this._resolveDialog
+      });
     }, () => {
       // Error
       this.$['username-input'].invalid = true;

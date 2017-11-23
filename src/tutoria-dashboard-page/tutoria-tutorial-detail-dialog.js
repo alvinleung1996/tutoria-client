@@ -74,7 +74,7 @@ export const contentTemplate = `
 <p id="send-message" class="value">Send Message</p>
 `;
 
-export default class TutoriaHomePageTutorialDetailDialog extends TutoriaDialog {
+export default class TutoriaTutorialDetailDialog extends TutoriaDialog {
 
   static get template() {
     return TutoriaDialog.generateTemplate({
@@ -290,4 +290,4 @@ export default class TutoriaHomePageTutorialDetailDialog extends TutoriaDialog {
 
 }
 
-window.customElements.define('tutoria-home-page-tutorial-detail-dialog', TutoriaHomePageTutorialDetailDialog);
+window.customElements.define('tutoria-tutorial-detail-dialog', TutoriaTutorialDetailDialog);
