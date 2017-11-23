@@ -52,7 +52,8 @@ article {
   align-items: center;
 }
 #timetable {
-  height: 500px;
+  min-height: 300px;
+  max-height: calc(100vh - 256px);
   @apply --tutoria-shadow--elevation-2;
   border-radius: 4px;
   background-color: var(--tutoria-background--primary_color);
