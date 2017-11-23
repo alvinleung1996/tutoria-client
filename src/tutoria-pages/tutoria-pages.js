@@ -73,25 +73,25 @@ export default class TutoriaPages extends TutoriaElement {
         value: () => [
           {
             pathPattern: /^\/search\??$/,
-            requiredRoles: [['student']],
+            requiredRoles: ['student'],
             importPage: () => import(/* webpackChunkName: "search-result-page" */ '../tutoria-search-result-page/tutoria-search-result-page.js'),
             pageTagName: 'tutoria-search-result-page'
           },
           {
             pathPattern: /^\/tutors\/(.*)$/,
-            requiredRoles: [['student']],
+            requiredRoles: ['student'],
             importPage: () => import(/* webpackChunkName: "tutor-page" */ '../tutoria-tutor-page/tutoria-tutor-page.js'),
             pageTagName: 'tutoria-tutor-page'
           },
           {
             pathPattern: /^\/profile$/,
-            requiredRoles: [['user']],
+            requiredRoles: [],
             importPage: () => import(/* webpackChunkName: "profile-page" */ '../tutoria-profile-page/tutoria-profile-page.js'),
             pageTagName: 'tutoria-profile-page'
           },
           {
             pathPattern: /^/,
-            requiredRoles: [['student'], ['tutor']],
+            requiredRoles: ['student', 'tutor'],
             importPage: () => import(/* webpackChunkName: "home-page" */ '../tutoria-home-page/tutoria-home-page.js'),
             pageTagName: 'tutoria-home-page'
           },
@@ -99,7 +99,7 @@ export default class TutoriaPages extends TutoriaElement {
       },
       _filteredPathToPageMaps: {
         type: Array,
-        computed: '_computeFilteredPathToPageMaps(_pathToPageMaps.*, _userProfile.roles.*)'
+        computed: '_computeFilteredPathToPageMaps(_pathToPageMaps.*, _userProfile.roles.*, _loggedIn)'
       },
 
       _pathMatchResult: {
@@ -128,15 +128,16 @@ export default class TutoriaPages extends TutoriaElement {
     this.__bindedOnSelectedPageShowToolbarShadowChanged = this._onSelectedPageShowToolbarShadowChanged.bind(this);
   }
 
-  _computeFilteredPathToPageMaps(pathToPageMapsChangeRecord, userRoleChangeRecord) {
+  _computeFilteredPathToPageMaps(pathToPageMapsChangeRecord, userRoleChangeRecord, loggedIn) {
     let pathToPageMaps = (pathToPageMapsChangeRecord && pathToPageMapsChangeRecord.base) || [];
     let userRoles = (userRoleChangeRecord && userRoleChangeRecord.base) || [];
+    
     return pathToPageMaps.filter(map =>
-      map.requiredRoles.some(rule =>
-        rule.every(role =>
-          userRoles.includes(role)
-        )
-      )
+      !Array.isArray(map.requiredRoles)
+      || (map.requiredRoles.length == 0 && loggedIn)
+      || (loggedIn && map.requiredRoles.some(role =>
+        userRoles.includes(role)
+      ))
     );
   }
 

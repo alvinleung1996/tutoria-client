@@ -10,6 +10,7 @@ import '../../node_modules/@polymer/paper-input/paper-textarea.js';
 
 import '../tutoria-api/tutoria-api-ajax.js';
 import '../tutoria-api/tutoria-auth-manager.js';
+import '../tutoria-styles/tutoria-styles.js';
 
 export const template = `
 <style>
@@ -17,16 +18,56 @@ export const template = `
   display: block;
 }
 
-#content {
+section {
+  border-bottom: 1px solid var(--tutoria-divider_color);
+}
+.section-content {
+  box-sizing: border-box;
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+.section-content > :not(:first-child) {
+  margin-top: 16px;
 }
 
+header {
+  @apply --tutoria-text--display1_font;
+  color: var(--tutoria-text--primary_color);
+}
+
+form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 16px 16px;
+}
+.submit-button {
+  grid-column: 1 / -1;
+  justify-self: end;
+  @apply --tutoria-text--button_font;
+  background-color: dodgerblue;
+  color: white;
+}
+paper-textarea {
+  grid-column: 1 / -1;
+}
+
+paper-button {
+  display: block;
+  margin: 0px;
+}
+
+#register-tutor-button {
+  align-self: flex-start;
+}
 :host([_show-tutor-input]) #register-tutor-button {
   display: none;
 }
-:host(:not([_show-tutor-input])) #tutor-input {
+
+:host(:not([_show-tutor-input])) #tutor-iron-form {
   display: none;
 }
 </style>
@@ -67,28 +108,35 @@ export const template = `
   </iron-ajax>
 </tutoria-api-ajax>
 
-<div id="content">
-  <iron-form id="user-iron-form" on-iron-form-presubmit="_onUserIronFormPresubmit">
-    <form>
-      <paper-input id="username-input" label="username" name="username" required value="[[_userProfile.username]]" on-keypress="_onUserInputKeyPress"></paper-input>
-      <paper-input id="password-input" label="password" name="password" type="password" on-keypress="_onUserInputKeyPress"></paper-input>
-      <paper-input id="email-input" label="email" name="email" required value="[[_userProfile.email]]" on-keypress="_onUserInputKeyPress"></paper-input>
-      <paper-input id="given-name-input" label="given name" name="givenName" required value="[[_userProfile.givenName]]" on-keypress="_onUserInputKeyPress"></paper-input>
-      <paper-input id="family-name-input" label="family name" name="familyName" required value="[[_userProfile.familyName]]" on-keypress="_onUserInputKeyPress"></paper-input>
-      <paper-input id="phone-number-input" label="phone number" name="phoneNumber" required type="number" value="[[_userProfile.phoneNumber]]" on-keypress="_onUserInputKeyPress"></paper-input>
-    </form>
-  </iron-form>
+<section>
+  <div class="section-content">
+    <header>Account Profile</header>
+    <iron-form id="user-iron-form" on-iron-form-presubmit="_onUserIronFormPresubmit">
+      <form>
+        <paper-input id="username-input" label="username" name="username" readonly value="[[_userProfile.username]]"></paper-input>
+        <paper-input id="password-input" label="password" name="password" type="password" on-keypress="_onUserInputKeyPress"></paper-input>
+        <paper-input id="email-input" label="email" name="email" required value="[[_userProfile.email]]" on-keypress="_onUserInputKeyPress"></paper-input>
+        <paper-input id="given-name-input" label="given name" name="givenName" required value="[[_userProfile.givenName]]" on-keypress="_onUserInputKeyPress"></paper-input>
+        <paper-input id="family-name-input" label="family name" name="familyName" required value="[[_userProfile.familyName]]" on-keypress="_onUserInputKeyPress"></paper-input>
+        <paper-input id="phone-number-input" label="phone number" name="phoneNumber" required type="number" value="[[_userProfile.phoneNumber]]" on-keypress="_onUserInputKeyPress"></paper-input>
+        
+        <paper-button id="update-user-profile-button" class="submit-button" raised on-click="_onUpdateUserProfileButtonClick">Update</paper-button>
+      </form>
+    </iron-form>
+  </div>
+</section>
 
-  <paper-button id="update-user-profile-button" on-click="_onUpdateUserProfileButtonClick">Update</paper-button>
+<section>
+  <div class="section-content">
+    <header>Tutor Profile</header>
 
-  <paper-button id="register-tutor-button" on-click="_onRegisterTutorButtonClick">Register as tutor</paper-button>
+    <paper-button id="register-tutor-button" on-click="_onRegisterTutorButtonClick">Register as tutor</paper-button>
 
-  <div id="tutor-input">
     <iron-form id="tutor-iron-form" on-iron-form-presubmit="_onTutorIronFormPresubmit">
       <form>
         <div id="tutor-type-input">
           <label for="tutor-type-input_select">tutor type:</label>
-          <select id="tutor-type-input_select" label="tutor type" name="type" selected="[[_tutorProfile.type]]">
+          <select id="tutor-type-input_select" label="tutor type" name="type" required selected="[[_tutorProfile.type]]">
             <option value="contracted">Contracted</option>
             <option value="private">Private</option>
           </select>
@@ -98,14 +146,15 @@ export const template = `
         <paper-input id="university-input" label="university" name="university" required value="[[_tutorProfile.university]]" on-keypress="_onTutorInputKeyPress"></paper-input>
         <paper-input id="course-codes-input" label="course codes" name="courseCodes" required value="[[_arrayToString(_tutorProfile.courseCodes)]]" on-keypress="_onTutorInputKeyPress"></paper-input>
         <paper-input id="hourly-rate-input" label="hourly-rate" name="hourlyRate" required type="number" min="0" step="10" value="[[_toFloat(_tutorProfile.hourlyRate)]]" on-keypress="_onTutorInputKeyPress"></paper-input>
-        <paper-textarea id="biography-input" label="biography" name="biography" value="[[_tutorProfile.biography]]"></paper-textarea>
+        <paper-textarea id="biography-input" label="biography" name="biography" value="[[_tutorProfile.biography]]" always-float-label></paper-textarea>
+        <!-- always float-label to fix bug: label not auto floating when setting value until typing -->
+
+        <paper-button id="update-user-profile-button" class="submit-button" raised on-click="_onUpdateTutorProfileButtonClick">[[_ifElse(_isTutor, 'Update', 'Register')]]</paper-button>
       </form>
     </iron-form>
-
-    <paper-button id="update-user-profile-button" on-click="_onUpdateTutorProfileButtonClick">[[_ifElse(_isTutor, 'Update', 'Register')]]</paper-button>
   </div>
 
-</div>
+</section>
 `;
 
 export default class TutoriaProfilePage extends TutoriaElement {
@@ -208,9 +257,7 @@ export default class TutoriaProfilePage extends TutoriaElement {
     let serializeForm = ironForm.serializeForm();
     let params = {};
     for (let key in serializeForm) {
-      if (serializeForm[key]) {
-        params[key] = serializeForm[key];
-      }
+      params[key] = serializeForm[key] || '';
     }
 
     this.$['update-user-profile-ajax'].body = params;
@@ -287,20 +334,18 @@ export default class TutoriaProfilePage extends TutoriaElement {
       activated: false
     };
     for (let key in serializeForm) {
-      if (serializeForm[key]) {
-        switch (key) {
-          case 'activated':
-            params[key] = Boolean(serializeForm[key]);
-            break;
-          case 'subjectTags':
-          case 'courseCodes':
-            params[key] = serializeForm[key].split(',')
-                .map(s => s.trim())
-                .filter(s => Boolean(s));
-            break;
-          default:
-            params[key] = serializeForm[key];
-        }
+      switch (key) {
+        case 'activated':
+          params[key] = Boolean(serializeForm[key]);
+          break;
+        case 'subjectTags':
+        case 'courseCodes':
+          params[key] = serializeForm[key].split(',')
+              .map(s => s.trim())
+              .filter(s => Boolean(s));
+          break;
+        default:
+          params[key] = serializeForm[key] || '';
       }
     }
 
