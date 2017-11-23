@@ -2,6 +2,7 @@ import TutoriaElement from '../tutoria-element/tutoria-element.js';
 import '../../node_modules/@webcomponents/shadycss/apply-shim.min.js';
 
 import '../../node_modules/@polymer/iron-ajax/iron-ajax.js';
+import '../../node_modules/@polymer/iron-icon/iron-icon.js';
 import '../../node_modules/@polymer/paper-icon-button/paper-icon-button.js';
 
 import '../tutoria-api/tutoria-api-ajax.js';
@@ -93,6 +94,18 @@ export default class TutoriaMessagesPage extends TutoriaElement {
         type: Array,
         value: () => [{
           propertyName: 'direction',
+          onBindCallback: (cell, item, column) => {
+            let icon = cell.querySelector('iron-icon');
+            if (!icon) {
+              icon = document.createElement('iron-icon');
+              cell.appendChild(icon);
+            }
+            icon.setProperties({
+              icon: item.role === 'receiver' ?
+                  'tutoria:incoming-message' : 'tutoria:outgoing-message',
+            });
+            icon.style.setProperty('color', item.role === 'receiver' ? 'dodgerblue' : 'red');
+          }
         }, {
           headerText: 'Sender',
           propertyName: 'sendUser.fullName',
@@ -116,7 +129,15 @@ export default class TutoriaMessagesPage extends TutoriaElement {
           propertyName: 'read',
           sortingFunction: (a, b, descending) => descending ? (b.read - a.read) : (a.read - b.read),
           onBindCallback: (cell, item, column) => {
-            cell.textContent = item.read ? '' : '*';
+            let icon = cell.querySelector('iron-icon');
+            if (!icon) {
+              icon = document.createElement('iron-icon');
+              icon.style.setProperty('color', 'green');
+              cell.appendChild(icon);
+            }
+            icon.setProperties({
+              icon: item.read ? 'tutoria:message-read' : undefined,
+            });
           }
         }]
       },

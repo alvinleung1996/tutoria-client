@@ -6,6 +6,7 @@ import '../../node_modules/@polymer/iron-icon/iron-icon.js';
 import '../../node_modules/@polymer/paper-button/paper-button.js';
 
 import '../tutoria-api/tutoria-api-ajax.js';
+import '../tutoria-api/tutoria-auth-manager.js';
 import '../tutoria-dialog/tutoria-dialog.js';
 import '../tutoria-icons/tutoria-icons.js';
 import '../tutoria-timetable/tutoria-timetable.js';
@@ -68,7 +69,12 @@ article {
 #add-unavailable-period-button:active {
   color: green;
 }
+#add-unavailable-period-button:not([show]) {
+  display: none;
+}
 </style>
+
+<tutoria-auth-manager user-profile="{{_userProfile}}"></tutoria-auth-manager>
 
 <tutoria-api-ajax>
   <iron-ajax id="ajax"
@@ -84,7 +90,7 @@ article {
   <div class="section-content">
     <div id="timetable-topping">
       <header>Your Bookings</header>
-      <paper-button id="add-unavailable-period-button" on-click="_onAddUnavailablePeriodButtonClick"><iron-icon icon="tutoria:add"></iron-icon>Unavailable Period</paper-button>
+      <paper-button id="add-unavailable-period-button" on-click="_onAddUnavailablePeriodButtonClick" show$="[[_showAddUnavailablePeriodButton]]"><iron-icon icon="tutoria:add"></iron-icon>Unavailable Period</paper-button>
     </div>
     <tutoria-timetable id="timetable" class="content"
       events="[[_events]]"
@@ -94,7 +100,7 @@ article {
 </section>
 `;
 
-export default class TutoriaDashboard extends TutoriaElement {
+export default class TutoriaDashboardPage extends TutoriaElement {
 
   static get template() {
     return template;
@@ -123,6 +129,11 @@ export default class TutoriaDashboard extends TutoriaElement {
       //   notify: true
       // }
 
+      _showAddUnavailablePeriodButton: {
+        type: Boolean,
+        computed: '_computeShowAddUnavailablePeriodButton(_userProfile.roles.*)'
+      },
+
       _events: {
         type: Array,
         computed: '_computeEvents(_ajaxLastResponse)'
@@ -140,6 +151,12 @@ export default class TutoriaDashboard extends TutoriaElement {
     if (visible) {
       this.$.ajax.generateRequest();
     }
+  }
+
+
+  _computeShowAddUnavailablePeriodButton(rolesRecord) {
+    const roles = rolesRecord && rolesRecord.base;
+    return Array.isArray(roles) && roles.includes('tutor');
   }
   
 
@@ -202,4 +219,4 @@ export default class TutoriaDashboard extends TutoriaElement {
 
 }
 
-window.customElements.define('tutoria-dashboard-page', TutoriaDashboard);
+window.customElements.define('tutoria-dashboard-page', TutoriaDashboardPage);

@@ -4,6 +4,7 @@ import '../../node_modules/@polymer/iron-form/iron-form.js';
 import '../../node_modules/@polymer/paper-input/paper-input.js';
 
 import { authManager } from '../tutoria-api/tutoria-auth-manager.js';
+import '../tutoria-reset-password-dialog/tutoria-ask-account-email-dialog.js';
 
 
 export const contentStyles = `
@@ -39,7 +40,7 @@ export default class TutoriaLoginDialog extends TutoriaDialog {
       },
       width: {
         type: String,
-        value: '300px'
+        value: 'auto'
       }
     };
   }
@@ -47,6 +48,9 @@ export default class TutoriaLoginDialog extends TutoriaDialog {
   ready() {
     super.ready();
     this.buttons = [{
+      text: 'Reset password',
+      callback: () => this._onResetPasswordButtonClick()
+    }, {
       text: 'Cancel',
       callback: () => this._onCancelButtonClick()
     }, {
@@ -95,6 +99,13 @@ export default class TutoriaLoginDialog extends TutoriaDialog {
       this.$['username-input'].invalid = true;
       this.$['password-input'].invalid = true;
     })
+  }
+
+
+
+  _onResetPasswordButtonClick() {
+    let dialog = document.createElement('tutoria-ask-account-email-dialog');
+    dialog.show();
   }
 
 }

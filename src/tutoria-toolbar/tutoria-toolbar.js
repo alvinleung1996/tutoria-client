@@ -149,7 +149,7 @@ const template = `
 <div id="content">
 
 <div id="left">
-  <a id="home-button-link" href="/" tabindex="-1">
+  <a id="home-button-link" href$="[[_homeButtonPath]]" tabindex="-1">
     <paper-button id="home-button">Tutoria</paper-button>
   </a>
 </div>
@@ -203,8 +203,19 @@ export default class TutoriaToolbar extends mixinBehaviors(IronResizableBehavior
       _loggedIn: {
         type: Boolean,
         reflectToAttribute: true
+      },
+
+      _homeButtonPath: {
+        type: String,
+        computed: '_computeHomeButtonPath(_loggedIn)'
       }
     };
+  }
+
+  _computeHomeButtonPath(loggedIn) {
+    let url = this.rootPath;
+    if (loggedIn) url += 'dashboard';
+    return url;
   }
 
   _computeShowSearchButton(roles) {

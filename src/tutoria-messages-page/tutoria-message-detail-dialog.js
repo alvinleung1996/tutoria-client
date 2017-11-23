@@ -21,9 +21,8 @@ export const otherTemplate = `
 
 <tutoria-api-ajax>
   <iron-ajax id="read-message-ajax"
-    auto
     method="PUT"
-    url$="[[apiRootPath]]messages/[[message.pk]]"
+    url$="[[apiRootPath]]messages/[[_messageDetail.pk]]"
     content-type="application/json"
     body="[[_readMessageAjaxBody]]"
     handle-as="json"
@@ -50,6 +49,7 @@ ${TutoriaDialogTemplates.contentStyles}
   margin-top: 16px;
   @apply --tutoria-text--body2_font;
   color: var(--tutoria-text--primary_color);
+  white-space: pre-wrap;
 }
 </style>
 `;
@@ -102,7 +102,8 @@ export default class TutoriaMessageDetailDialog extends TutoriaDialog {
 
       _messageDetail: {
         type: Object,
-        computed: '_computeMessageDetail(_lastGetMessageAjaxResponse)'
+        computed: '_computeMessageDetail(_lastGetMessageAjaxResponse)',
+        observer: '_onMessageDetailChanged'
       }
 
       // _lastGetMessageAjaxResponse: {
@@ -140,6 +141,17 @@ export default class TutoriaMessageDetailDialog extends TutoriaDialog {
   _computeHeader(title) {
     return title;
   }
+
+  _onMessageDetailChanged(detail) {
+    if (!detail) {
+      return;
+    }
+    if (detail.role === 'receiver' && !detail.read) {
+      this.$['read-message-ajax'].generateRequest();
+    }
+  }
+
+
 
   _onCloseButtonClick(dialog, button) {
     this.hide()
