@@ -65,10 +65,19 @@ export const template = `
     display: flex;
     justify-content: flex-end;
   }
+  .button {
+    @apply --tutoria-text--button_font;
+  }
+  #profile-button {
+    color: var(--tutoria-text--primary_color);
+  }
   #log-out-button {
     background-color: var(--tutoria-background--app-theme--primary_color);
-    @apply --tutoria-text--button_font;
     color: var(--tutoria-text--app-theme--primary_color);
+  }
+
+  a {
+    text-decoration: none;
   }
 </style>
 
@@ -87,7 +96,8 @@ export const template = `
   </div>
 
   <div id="buttons">
-    <paper-button id="log-out-button" raised on-click="_onLogOutButtonClick">Log out</paper-button>
+    <a href$="[[rootPath]]profile" tabindex="-1"><paper-button id="profile-button" class="button">Profile</paper-button></a>
+    <paper-button id="log-out-button" class="button" raised on-click="_onLogOutButtonClick">Log out</paper-button>
   </div>
 
 </div>
