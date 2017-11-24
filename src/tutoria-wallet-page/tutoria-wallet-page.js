@@ -9,7 +9,7 @@ import '../tutoria-icons/tutoria-icons.js';
 import '../tutoria-styles/tutoria-styles.js';
 import '../tutoria-table/tutoria-table.js';
 
-import './tutoria-wallet-add-money-dialog.js';
+import './tutoria-change-wallet-balance-dialog.js';
 
 export const template = `
 <style>
@@ -48,7 +48,7 @@ export const template = `
     @apply --tutoria-text--display1_font;
     color: var(--tutoria-text--secondary_color);
   }
-  #add-money-button {
+  #edit-balance-button {
     margin-left: 8px;
     color: rgba(var(--tutoria-text--base_color_r),
                 var(--tutoria-text--base_color_g),
@@ -56,10 +56,10 @@ export const template = `
                 0.3);
     transition: color 200ms ease-out;
   }
-  #add-money-button:hover,
-  #add-money-button:active {
-    color: green;
-    --paper-icon-button-ink-color: green;
+  #edit-balance-button:hover,
+  #edit-balance-button:active {
+    color: chocolate;
+    --paper-icon-button-ink-color: chocolate;
   }
 
   #transactions-table {
@@ -96,7 +96,7 @@ export const template = `
 <section>
   <div class="section-content">
     <header>Wallet</header>
-    <div id="balance"><span id="balance-text">$ [[_wallet.balance]]</span><paper-icon-button id="add-money-button" icon="tutoria:add-money" on-click="_onAddMoneyButtonClick"></paper-icon-button></div>
+    <div id="balance"><span id="balance-text">$ [[_wallet.balance]]</span><paper-icon-button id="edit-balance-button" icon="tutoria:edit-wallet-balance" on-click="_onEditWalletBalanceButtonClick"></paper-icon-button></div>
   </div>
 </section>
 
@@ -221,9 +221,9 @@ export default class TutoriaWalletPage extends TutoriaElement {
 
 
 
-  _onAddMoneyButtonClick(evt) {
-    let dialog = document.createElement('tutoria-wallet-add-money-dialog');
-    dialog.addEventListener('tutoria-wallet-add-money-dialog-success', d => {
+  _onEditWalletBalanceButtonClick(evt) {
+    let dialog = document.createElement('tutoria-change-wallet-balance-dialog');
+    dialog.addEventListener('tutoria-change-wallet-balance-dialog-success', d => {
       this._loadData();
     });
     dialog.show();

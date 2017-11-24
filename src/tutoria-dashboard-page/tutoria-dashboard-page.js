@@ -90,7 +90,7 @@ article {
   <div class="section-content">
     <div id="timetable-topping">
       <header>Your Bookings</header>
-      <paper-button id="add-unavailable-period-button" on-click="_onAddUnavailablePeriodButtonClick" show$="[[_showAddUnavailablePeriodButton]]"><iron-icon icon="tutoria:add"></iron-icon>Unavailable Period</paper-button>
+      <paper-button id="add-unavailable-period-button" on-click="_onAddUnavailablePeriodButtonClick" show$="[[_showAddUnavailablePeriodButton]]"><iron-icon icon="tutoria:add-unavailable-period"></iron-icon>Unavailable Period</paper-button>
     </div>
     <tutoria-timetable id="timetable" class="content"
       events="[[_events]]"

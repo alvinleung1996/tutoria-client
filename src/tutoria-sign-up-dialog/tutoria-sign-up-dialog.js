@@ -36,7 +36,7 @@ export const contentTemplate = `
     <paper-input id="email-input" label="email" name="email" required on-keypress="_onInputKeyPress"></paper-input>
     <paper-input id="given-name-input" label="given name" name="givenName" required on-keypress="_onInputKeyPress"></paper-input>
     <paper-input id="family-name-input" label="family name" name="familyName" required on-keypress="_onInputKeyPress"></paper-input>
-    <paper-input id="phone-number-input" label="phone number" name="phoneNumber" required type="number" on-keypress="_onInputKeyPress"></paper-input>
+    <paper-input id="phone-number-input" label="phone number" name="phoneNumber" required type="tel" on-keypress="_onInputKeyPress"></paper-input>
   </form>
 </iron-form>
 `;

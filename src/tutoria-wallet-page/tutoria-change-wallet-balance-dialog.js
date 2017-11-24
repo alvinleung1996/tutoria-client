@@ -30,12 +30,12 @@ ${TutoriaDialogTemplates.contentStyles}
 export const contentTemplate = `
 <iron-form id="iron-form">
   <form>
-    <paper-input id="amount-input" label="amount" name="amountDelta" required type="number" min="0" value="0"></paper-input>
+    <paper-input id="amount-input" label="amount" name="amountDelta" required type="number" value="0"></paper-input>
   </form>
 </iron-form>
 `;
 
-export default class TutoriaWalletAddMoneyDialog extends TutoriaDialog {
+export default class TutoriaChangeWalletBalanceDialog extends TutoriaDialog {
 
   static get template() {
     return TutoriaDialog.generateTemplate({
@@ -49,7 +49,7 @@ export default class TutoriaWalletAddMoneyDialog extends TutoriaDialog {
     return {
       header: {
         type: String,
-        value: 'Add Money'
+        value: 'Change Wallet Balance'
       },
       width: {
         type: Number,
@@ -81,7 +81,7 @@ export default class TutoriaWalletAddMoneyDialog extends TutoriaDialog {
   _onCancelButtonClick(dialog, button) {
     this.hide()
     .then(() => {
-      this.dispatchEvent(new CustomEvent('tutoria-wallet-add-money-dialog-cancel', {
+      this.dispatchEvent(new CustomEvent('tutoria-change-wallet-balance-dialog-cancel', {
         detail: {
           dialog: this
         }
@@ -108,7 +108,7 @@ export default class TutoriaWalletAddMoneyDialog extends TutoriaDialog {
   _onLastUpdateWalletAjaxResponseChanged(response) {
     if (response) {
       this.hide().then(() => {
-        this.dispatchEvent(new CustomEvent('tutoria-wallet-add-money-dialog-success', {
+        this.dispatchEvent(new CustomEvent('tutoria-change-wallet-balance-dialog-success', {
           detail: {
             dialog: this
           }
@@ -138,4 +138,4 @@ export default class TutoriaWalletAddMoneyDialog extends TutoriaDialog {
 
 }
 
-window.customElements.define('tutoria-wallet-add-money-dialog', TutoriaWalletAddMoneyDialog);
+window.customElements.define('tutoria-change-wallet-balance-dialog', TutoriaChangeWalletBalanceDialog);

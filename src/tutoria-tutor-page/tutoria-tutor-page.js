@@ -23,22 +23,26 @@ export const template = `
 }
 
 section {
+  border-bottom: 1px solid var(--tutoria-divider_color);
+}
+.section-content {
+  box-sizing: border-box;
+  max-width: 1000px;
   margin-left: auto;
   margin-right: auto;
-  max-width: 1000px;
-  box-sizing: border-box;
   padding: 16px;
+  display: flex;
+  flex-direction: column;
 }
-section:not(:first-of-type) {
-  border-top: var(--tutoria-divider_color) 1px solid;
+.section-content > :not(:first-child) {
+  margin-top: 16px;
 }
+
 header {
   @apply --tutoria-text--title_font;
   color: var(--tutoria-text--primary_color);
 }
-article, .content {
-  margin-top: 16px;
-}
+
 article {
   @apply --tutoria-text--body1_font;
   color: var(--tutoria-text--secondary_color);
@@ -46,6 +50,12 @@ article {
 
 #info {
   display: flex;
+  /* override .section-content */
+  flex-direction: row;
+}
+#info > :not(:first-child) {
+  /* override .section-content */
+  margin-top: auto;
 }
 
 #avatar-div {
@@ -114,8 +124,10 @@ article {
 }
 
 #timetable {
-  margin-top: 16px;
   height: 500px;
+  @apply --tutoria-shadow--elevation-2;
+  border-radius: 4px;
+  background-color: var(--tutoria-background--primary_color);
 }
 
 .review {
@@ -133,61 +145,69 @@ article {
   </iron-ajax>
 </tutoria-api-ajax>
 
-<section id="info">
-  <div id="avatar-div">
-    <iron-image id="avatar" src="[[_tutor.avatar]]" sizing="contain" preload fade></iron-image>
-  </div>
-  <div id="fields-table">
-
-    <div id="full-name" class="value span">[[_tutor.givenName]] [[_tutor.familyName]]</div>
-
-    <div class="label">University:</div>
-    <div id="university" class="value">[[_tutor.university]]</div>
-
-    <div class="label">Course Code:</div>
-    <div id="course-code" class="value">[[_tutor.courseCode]]</div>
-    
-    <div class="label">Subject Tags:</div>
-    <div id="subject-tags" class="value">
-      <template is="dom-repeat" items="[[_tutor.subjectTags]]" as="subjectTag">
-        <div class="subject-tag">[[subjectTag]]</div>
-      </template>
+<section>
+  <div id="info" class="section-content">
+    <div id="avatar-div">
+      <iron-image id="avatar" src="[[_tutor.avatar]]" sizing="contain" preload fade></iron-image>
     </div>
+    <div id="fields-table">
 
-    <div class="label">Hourly Rate:</div>
-    <div id="price" class="value">$ [[_tutor.hourlyRate]]</div>
+      <div id="full-name" class="value span">[[_tutor.givenName]] [[_tutor.familyName]]</div>
 
-    <div class="label">Average review score:</div>
-    <tutoria-rating-bar id="average-rating" rating="[[_tutor.averageReviewScore]]"></tutoria-rating-bar>
+      <div class="label">University:</div>
+      <div id="university" class="value">[[_tutor.university]]</div>
 
-    <paper-button id="message-button" class="info-button"><iron-icon class="icon" icon="tutoria:message"></iron-icon>Send Message</paper-button>
+      <div class="label">Course Code:</div>
+      <div id="course-code" class="value">[[_tutor.courseCode]]</div>
+      
+      <div class="label">Subject Tags:</div>
+      <div id="subject-tags" class="value">
+        <template is="dom-repeat" items="[[_tutor.subjectTags]]" as="subjectTag">
+          <div class="subject-tag">[[subjectTag]]</div>
+        </template>
+      </div>
 
-    <paper-button id="phone-number-button" class="info-button" show$="[[_computeShowPhoneNumber(_tutor.phoneNumber)]]"><iron-icon class="icon" icon="tutoria:phone"></iron-icon>[[_tutor.phoneNumber]]</paper-button>
+      <div class="label">Hourly Rate:</div>
+      <div id="price" class="value">$ [[_tutor.hourlyRate]]</div>
 
+      <div class="label">Average review score:</div>
+      <tutoria-rating-bar id="average-rating" rating="[[_tutor.averageReviewScore]]"></tutoria-rating-bar>
+
+      <paper-button id="message-button" class="info-button"><iron-icon class="icon" icon="tutoria:message"></iron-icon>Send Message</paper-button>
+
+      <paper-button id="phone-number-button" class="info-button" show$="[[_computeShowPhoneNumber(_tutor.phoneNumber)]]"><iron-icon class="icon" icon="tutoria:phone"></iron-icon>[[_tutor.phoneNumber]]</paper-button>
+
+    </div>
   </div>
 </section>
 
 <section id="introduction-section">
-  <header id="introduction-header">Introduction</header>
-  <article id="introduction-text">[[_tutor.biography]]</article>
+  <div class="section-content">
+    <header id="introduction-header">Introduction</header>
+    <article id="introduction-text">[[_tutor.biography]]</article>
+  </div>
 </section>
 
 <section id="timetable-section">
-  <header id="timetable-header">Timeslot</header>
-  <tutoria-timetable id="timetable" on-tutoria-timetable-time-selected="_onTimetableTimeSelected" events="[[_tutor.events]]"></tutoria-timetable>
+  <div class="section-content">
+    <header id="timetable-header">Timeslot</header>
+    <tutoria-timetable id="timetable" on-tutoria-timetable-time-selected="_onTimetableTimeSelected" events="[[_tutor.events]]"></tutoria-timetable>
+  </div>
 </section>
 
 <section id="reviews-section">
-  <header id="header-section">Reviews</header>
-  <template is="dom-repeat" items="[[_tutor.reviews]]" as="review">
-    <tutoria-review class="review"
-      avatar="[[review.student.avatar]]"
-      full-name="[[review.student.fullName]]"
-      score="[[review.score]]"
-      time="[[review.time]]"
-      comment="[[review.comment]]">
-    </tutoria-review>
-  </template>
+  <div class="section-content">
+    <header id="header-section">Reviews</header>
+    <template is="dom-repeat" items="[[_tutor.reviews]]" as="review">
+      <tutoria-review class="review"
+        avatar="[[review.student.avatar]]"
+        full-name="[[review.student.fullName]]"
+        score="[[review.score]]"
+        time="[[review.time]]"
+        comment="[[review.comment]]">
+      </tutoria-review>
+    </template>
+  </div>
 </section>
 `;
 
