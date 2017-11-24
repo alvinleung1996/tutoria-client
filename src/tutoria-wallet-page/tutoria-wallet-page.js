@@ -22,7 +22,7 @@ export const template = `
   }
   .section-content {
     box-sizing: border-box;
-    max-width: 800px;
+    max-width: 1000px;
     margin-left: auto;
     margin-right: auto;
     padding: 16px;
@@ -140,6 +140,20 @@ export default class TutoriaWalletPage extends TutoriaElement {
       _transactionaTableColumns: {
         type: Array,
         value: () => [{
+          propertyName: 'withdrawFromUser.action',
+          onBindCallback: (cell, item, column) => {
+            let icon = cell.querySelector('iron-icon');
+            if (!icon) {
+              icon = document.createElement('iron-icon');
+              cell.appendChild(icon);
+            }
+            icon.setProperties({
+              icon: item.action === 'withdraw' ?
+                  'tutoria:withdraw-money' : 'tutoria:deposit-money',
+            });
+            icon.style.setProperty('color', item.action === 'withdraw' ? 'red' : 'green');
+          }
+        }, {
           headerText: 'Withdraw From',
           propertyName: 'withdrawFromUser.fullName',
         }, {
@@ -148,6 +162,7 @@ export default class TutoriaWalletPage extends TutoriaElement {
         }, {
           headerText: 'Amount',
           propertyName: 'amount',
+          width: '1fr',
           alignRight: true,
           cellPrefix: '$ ',
           sortingFunction: (a, b, descending) => descending ? (b.amount - a.amount) : (a.amount - b.amount)

@@ -146,11 +146,36 @@ export default class TutoriaSearchBox extends TutoriaElement {
     };
   }
 
+  constructor() {
+    super();
+    this.__onWindowClickHandler = e => this._onWindowClick(e);
+  }
+
   ready() {
     super.ready();
     this._transitionManager = new TransitionManager(this);
     this.style.setProperty('height', '0px');
   }
+
+  connectedCallback() {
+    super.connectedCallback();
+    window.addEventListener('click', this.__onWindowClickHandler);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    window.removeEventListener('click', this.__onWindowClickHandler);
+  }
+
+
+
+  _onWindowClick(evt) {
+    if (!evt.composedPath().includes(this) && this.opened && !this.transiting) {
+      this.close();
+    }
+  }
+
+
 
   open(animated = true) {
     this._setOpened(true);

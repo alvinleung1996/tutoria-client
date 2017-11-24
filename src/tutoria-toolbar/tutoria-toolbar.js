@@ -3,11 +3,12 @@ import {mixinBehaviors} from '../../node_modules/@polymer/polymer/lib/legacy/cla
 import '../../node_modules/@webcomponents/shadycss/apply-shim.min.js';
 
 import '../../node_modules/@polymer/iron-ajax/iron-ajax.js';
+import '../../node_modules/@polymer/iron-image/iron-image.js';
 import '../../node_modules/@polymer/iron-media-query/iron-media-query.js';
 import {IronResizableBehavior} from '../../node_modules/@polymer/iron-resizable-behavior/iron-resizable-behavior.js';
 import '../../node_modules/@polymer/paper-button/paper-button.js';
 import '../../node_modules/@polymer/paper-icon-button/paper-icon-button.js';
-import '../../node_modules/@polymer/iron-image/iron-image.js';
+import '../../node_modules/@polymer/paper-tabs/paper-tabs.js';
 
 import { authManager } from '../tutoria-api/tutoria-auth-manager.js';
 import '../tutoria-icons/tutoria-icons.js';
@@ -72,6 +73,28 @@ const template = `
   @apply --tutoria-text--title_font;
   color: var(--tutoria-text--app-theme--primary_color);
   text-transform: none;
+}
+
+#tabs {
+  height: auto;
+  --paper-tabs-selection-bar-color: var(--tutoria-text--app-theme--primary_color);
+  --paper-tabs-selection-bar: {
+    border-bottom-width: 3px;
+  }
+}
+.tab {
+  --paper-tab-ink: var(--tutoria-text--app-theme--primary_color);
+}
+.tab-link {
+  padding-left: 8px;
+  padding-right: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  @apply --tutoria-text--menu_font;
+  text-decoration: none;
+  color: var(--tutoria-text--app-theme--primary_color);
+  outline: none;
 }
 
 #right {
@@ -152,6 +175,18 @@ const template = `
   <a id="home-button-link" href$="[[_homeButtonPath]]" tabindex="-1">
     <paper-button id="home-button">Tutoria</paper-button>
   </a>
+  <paper-tabs id="tabs"
+    activate-event=""
+    attr-for-selected="tab-id"
+    selected="[[_selectedTabId]]">
+    <template is="dom-repeat" items="[[_tabs]]" as="tab">
+      <paper-tab class="tab" link tab-id$="[[tab.id]]">
+        <a class="tab-link" href$="[[tab.url]]" tabindex="-1">
+          [[tab.text]]
+        </a>
+      </paper-tab>
+    </template>
+  </paper-tabs>
 </div>
 
 <div id="right">
@@ -179,6 +214,8 @@ export default class TutoriaToolbar extends mixinBehaviors(IronResizableBehavior
 
   static get properties() {
     return {
+      path: String,
+
       short: {
         type: Boolean,
         reflectToAttribute: true,
@@ -208,6 +245,14 @@ export default class TutoriaToolbar extends mixinBehaviors(IronResizableBehavior
       _homeButtonPath: {
         type: String,
         computed: '_computeHomeButtonPath(_loggedIn)'
+      },
+      _tabs: {
+        type: Array,
+        computed: '_computeTabs(_loggedIn)'
+      },
+      _selectedTabId: {
+        type: String,
+        computed: '_computeSelectedTabId(_tabs.*, path)'
       }
     };
   }
@@ -216,6 +261,32 @@ export default class TutoriaToolbar extends mixinBehaviors(IronResizableBehavior
     let url = this.rootPath;
     if (loggedIn) url += 'dashboard';
     return url;
+  }
+
+  _computeTabs(loggedIn) {
+    if (!loggedIn) {
+      return [];
+    }
+    let tabs = [{
+      text: 'Dashboard',
+      url: `${this.rootPath}dashboard`,
+      id: 'dashboard'
+    }, {
+      text: 'Messages',
+      url: `${this.rootPath}messages`,
+      id: 'messages'
+    }, {
+      text: 'Wallet',
+      url: `${this.rootPath}wallet`,
+      id: 'wallet'
+    }];
+    return tabs;
+  }
+
+  _computeSelectedTabId(tabsRecord, path) {
+    const tabs = (tabsRecord && tabsRecord.base) || [];
+    let selectedTab = tabs.find(t => path.startsWith(t.url));
+    return selectedTab && selectedTab.id;
   }
 
   _computeShowSearchButton(roles) {

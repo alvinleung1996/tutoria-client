@@ -17,14 +17,23 @@ export const template = `
   display: block;
 }
 
-.content {
-  margin-top: 32px;
+section {
+  border-bottom: 1px solid var(--tutoria-divider_color);
+}
+.section-content {
+  box-sizing: border-box;
+  max-width: 1000px;
   margin-left: auto;
   margin-right: auto;
-  max-width: 1000px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+.section-content > :not(:first-child) {
+  margin-top: 16px;
 }
 
-#header {
+header {
   @apply --tutoria-text--title_font;
   color: var(--tutoria-text--primary_color);
 }
@@ -47,16 +56,18 @@ export const template = `
   </iron-ajax>
 </tutoria-api-ajax>
 
-<header id="header" class="content">Search Result</header>
-
-<tutoria-table
-  id="table"
-  class="content"
-  columns="[[_tableColumns]]"
-  data="[[_tableData]]"
-  clickable
-  on-tutoria-table-row-click="_onTableRowClick">
-</tutoria-table>
+<section>
+  <div class="section-content">
+    <header>Search Result</header>
+    <tutoria-table
+      id="table"
+      columns="[[_tableColumns]]"
+      data="[[_tableData]]"
+      clickable
+      on-tutoria-table-row-click="_onTableRowClick">
+    </tutoria-table>
+  </div>
+</section>
 `;
 
 export default class SearchResultPage extends TutoriaElement {

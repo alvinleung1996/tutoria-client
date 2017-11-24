@@ -54,7 +54,7 @@ article {
 }
 #timetable {
   min-height: 300px;
-  max-height: calc(100vh - 256px);
+  max-height: calc(100vh - 128px);
   @apply --tutoria-shadow--elevation-2;
   border-radius: 4px;
   background-color: var(--tutoria-background--primary_color);
@@ -202,7 +202,7 @@ export default class TutoriaDashboardPage extends TutoriaElement {
     dialog.unavailablePeriod = unavailablePeriod;
     dialog.show()
     dialog.addEventListener('tutoria-unavailable-period-detail-dialog-dialog-cancelled', e => {
-      this.$.ajax.generateRequest()
+      this.$.ajax.generateRequest();
     });
   }
 

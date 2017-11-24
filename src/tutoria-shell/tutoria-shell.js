@@ -11,6 +11,7 @@ const template = `
 </style>
 
 <tutoria-toolbar
+  path="[[path]]"
   short="{{shortToolbar}}"
   hide="[[hideToolbar]]"
   show-shadow="[[showToolbarShadow]]">
@@ -25,6 +26,7 @@ export default class TutoriaShell extends PolymerElement {
 
   static get properties() {
     return {
+      path: String,
       shortToolbar: {
         type: Boolean,
         notify: true

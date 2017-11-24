@@ -96,7 +96,7 @@ export const template = `
   </div>
 
   <div id="buttons">
-    <a href$="[[rootPath]]profile" tabindex="-1"><paper-button id="profile-button" class="button">Profile</paper-button></a>
+    <a href$="[[rootPath]]profile" tabindex="-1" on-click="_onProfileButtonLinkClick"><paper-button id="profile-button" class="button">Profile</paper-button></a>
     <paper-button id="log-out-button" class="button" raised on-click="_onLogOutButtonClick">Log out</paper-button>
   </div>
 
@@ -132,10 +132,25 @@ export default class TutoriaUserBox extends TutoriaElement {
     };
   }
 
+  constructor() {
+    super();
+    this.__onWindowClickHandler = e => this._onWindowClick(e);
+  }
+
   ready() {
     super.ready();
     this._transitionManager = new TransitionManager(this);
     this.style.setProperty('height', '0px');
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    window.addEventListener('click', this.__onWindowClickHandler);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    window.removeEventListener('click', this.__onWindowClickHandler);
   }
 
   open(animated = true) {
@@ -178,9 +193,19 @@ export default class TutoriaUserBox extends TutoriaElement {
     });
   }
 
+  _onProfileButtonLinkClick(evt) {
+    this.close();
+  }
+
   _onLogOutButtonClick(evt) {
     authManager.logOut()
     .then(() => this.close());
+  }
+
+  _onWindowClick(evt) {
+    if (!evt.composedPath().includes(this) && this.opened && !this.transiting) {
+      this.close();
+    }
   }
 
 }

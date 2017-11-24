@@ -26,6 +26,7 @@ const template = `
 <tutoria-auth-manager id="auth"></tutoria-auth-manager>
 
 <tutoria-shell
+  path="[[_path]]"
   short-toolbar="{{_shortToolbar}}"
   hide-toolbar="[[_hideToolbar]]"
   show-toolbar-shadow="[[_showToolbarShadow]]">
