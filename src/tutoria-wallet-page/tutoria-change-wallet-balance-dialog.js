@@ -30,7 +30,7 @@ ${TutoriaDialogTemplates.contentStyles}
 export const contentTemplate = `
 <iron-form id="iron-form">
   <form>
-    <paper-input id="amount-input" label="amount" name="amountDelta" required type="number" value="0"></paper-input>
+    <paper-input id="amount-input" label="amount delta" name="amountDelta" required type="number" value="0"></paper-input>
   </form>
 </iron-form>
 `;
@@ -72,7 +72,7 @@ export default class TutoriaChangeWalletBalanceDialog extends TutoriaDialog {
       style: 'color: dodgerblue;',
       callback: (d, b) => this._onCancelButtonClick(d, b)
     }, {
-      text: 'Add',
+      text: 'Change',
       style: 'color: dodgerblue;',
       callback: (d, b) => this._onAddButtonClick(d, b)
     }]

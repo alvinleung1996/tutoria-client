@@ -101,9 +101,9 @@ const template = `
 
       <div id="hourly-rate-range-input">
         <span id="hourly-rate-range-input_label" class="label">Price: </span>
-        <paper-input label="min" name="hourly-rate-min" type="number" min="0" step="10"><div prefix>$</div></paper-input>
+        <paper-input label="min" name="hourly-rate-min" type="number" min="0"><div prefix>$</div></paper-input>
         <span id="hourly-rate-range-input_hyphen" class="label">-</span>
-        <paper-input label="max" name="hourly-rate-max" type="number" min="0" step="10"><div prefix>$</div></paper-input>
+        <paper-input label="max" name="hourly-rate-max" type="number" min="0"><div prefix>$</div></paper-input>
       </div>
       <paper-checkbox name="free-only" value="true">Show tutors available timeslot only</paper-checkbox>
 
@@ -232,6 +232,7 @@ export default class TutoriaSearchBox extends TutoriaElement {
         parts.push(`${window.encodeURIComponent(key)}=${window.encodeURIComponent(param[key])}`);
       }
     }
+    parts.push(`time=${window.encodeURIComponent(new Date().getTime())}`);
     let uri = this.rootPath + 'search';
     if (parts.length > 0) uri += '?' + parts.join('&');
     redirectTo(uri);

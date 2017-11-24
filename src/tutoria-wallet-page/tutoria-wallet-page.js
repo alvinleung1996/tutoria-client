@@ -156,9 +156,15 @@ export default class TutoriaWalletPage extends TutoriaElement {
         }, {
           headerText: 'Withdraw From',
           propertyName: 'withdrawFromUser.fullName',
+          onBindCallback: (cell, item, column) => {
+            cell.textContent = cell.get('withdrawFromUser.fullName', item) || '-';
+          }
         }, {
           headerText: 'Deposit To',
-          propertyName: 'depositToUser.fullName'
+          propertyName: 'depositToUser.fullName',
+          onBindCallback: (cell, item, column) => {
+            cell.textContent = cell.get('depositToUser.fullName', item) || '-';
+          }
         }, {
           headerText: 'Amount',
           propertyName: 'amount',

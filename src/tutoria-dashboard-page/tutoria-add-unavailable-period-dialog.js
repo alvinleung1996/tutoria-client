@@ -33,11 +33,11 @@ ${TutoriaDialogTemplates.contentStyles}
 export const contentTemplate = `
 <iron-form id="iron-form" on-iron-form-presubmit="_onIronFormPresubmit">
   <form>
-    <paper-input id="start-date-input" label="start date" name="startDate" required type="date" on-keypress="_onInputKeyPress"></paper-input>
-    <paper-input id="start-time-input" label="start time" name="startTime" required type="time" on-keypress="_onInputKeyPress"></paper-input>
+    <paper-input id="start-date-input" label="start date" name="startDate" required type="date" placeholder="YYYY-MM-DD" on-keypress="_onInputKeyPress"></paper-input>
+    <paper-input id="start-time-input" label="start time" name="startTime" required type="time" placeholder="hh:mm" on-keypress="_onInputKeyPress"></paper-input>
 
-    <paper-input id="end-date-input" label="end date" name="endDate" required type="date" on-keypress="_onInputKeyPress"></paper-input>
-    <paper-input id="end-time-input" label="end time" name="endTime" required type="time" on-keypress="_onInputKeyPress"></paper-input>
+    <paper-input id="end-date-input" label="end date" name="endDate" required type="date" placeholder="YYYY-MM-DD" on-keypress="_onInputKeyPress"></paper-input>
+    <paper-input id="end-time-input" label="end time" name="endTime" required type="time" placeholder="hh:mm" on-keypress="_onInputKeyPress"></paper-input>
   </form>
 </iron-form>
 `;

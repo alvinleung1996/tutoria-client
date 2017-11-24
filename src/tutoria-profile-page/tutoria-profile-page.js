@@ -51,8 +51,12 @@ form {
   background-color: dodgerblue;
   color: white;
 }
-paper-textarea {
+.span {
   grid-column: 1 / -1;
+}
+.form-message {
+  @apply --tutoria-text--body1_font;
+  color: var(--tutoria-text--secondary_color);
 }
 
 paper-button {
@@ -60,15 +64,33 @@ paper-button {
   margin: 0px;
 }
 
+.select-input-label {
+  @apply --tutoria-text--menu_font;
+  color: var(--tutoria-text--secondary_color);
+}
+.select-input {
+  @apply --tutoria-text--menu_font;
+  color: var(--tutoria-text--primary_color);
+}
+
+#register-student-button,
 #register-tutor-button {
   align-self: flex-start;
+  color: dodgerblue;
 }
+:host([_show-student-input]) #register-student-button,
 :host([_show-tutor-input]) #register-tutor-button {
   display: none;
 }
 
+:host(:not([_show-student-input])) #student-iron-form,
 :host(:not([_show-tutor-input])) #tutor-iron-form {
   display: none;
+}
+
+#update-student-profile-button[disabled] {
+  background-color: transparent;
+  color: var(--tutoria-text--disabled_color);
 }
 </style>
 
@@ -88,12 +110,33 @@ paper-button {
 </tutoria-api-ajax>
 
 <tutoria-api-ajax>
+  <iron-ajax id="student-profile-ajax"
+    method="GET"
+    url$="[[apiRootPath]]students/me"
+    handle-as="json"
+    last-response="{{_lastStudentProfileAjaxResponse}}"
+    last-error="{{_lastStudentProfileAjaxError}}">
+  </iron-ajax>
+</tutoria-api-ajax>
+
+<tutoria-api-ajax>
   <iron-ajax id="tutor-profile-ajax"
     method="GET"
     url$="[[apiRootPath]]tutors/me"
     handle-as="json"
     last-response="{{_lastTutorProfileAjaxResponse}}"
     last-error="{{_lastTutorProfileAjaxError}}">
+  </iron-ajax>
+</tutoria-api-ajax>
+
+<tutoria-api-ajax>
+  <iron-ajax id="update-student-profile-ajax"
+    method="PUT"
+    url$="[[apiRootPath]]students/me"
+    content-type="application/json"
+    handle-as="json"
+    last-response="{{_lastUpdateStudentProfileAjaxResponse}}"
+    last-error="{{_lastUpdateStudentProfileAjaxError}}">
   </iron-ajax>
 </tutoria-api-ajax>
 
@@ -128,15 +171,31 @@ paper-button {
 
 <section>
   <div class="section-content">
+    <header>Student Profile</header>
+
+    <paper-button id="register-student-button" on-click="_onRegisterStudentButtonClick">Register as Student</paper-button>
+
+    <iron-form id="student-iron-form" on-iron-form-presubmit="_onStudentIronFormPresubmit">
+      <form>
+        <p class="form-message span">No additional information</p>
+        <paper-button id="update-student-profile-button" class="submit-button" on-click="_onUpdateStudentProfileButtonClick" raised="[[!_isIncludes(_userProfile.roles.*, 'student')]]" disabled="[[_isIncludes(_userProfile.roles.*, 'student')]]">[[_ifIncludesThen(_userProfile.roles.*, 'student', 'Update', 'Register')]]</paper-button>
+      </form>
+    </iron-form>
+  </div>
+
+</section>
+
+<section>
+  <div class="section-content">
     <header>Tutor Profile</header>
 
     <paper-button id="register-tutor-button" on-click="_onRegisterTutorButtonClick">Register as tutor</paper-button>
 
     <iron-form id="tutor-iron-form" on-iron-form-presubmit="_onTutorIronFormPresubmit">
       <form>
-        <div id="tutor-type-input">
-          <label for="tutor-type-input_select">tutor type:</label>
-          <select id="tutor-type-input_select" label="tutor type" name="type" required selected="[[_tutorProfile.type]]">
+        <div id="tutor-type-input" class="select-input-layout">
+          <label class="select-input-label" for="tutor-type-input_select">tutor type:</label>
+          <select id="tutor-type-input_select" class="select-input" label="tutor type" name="type" required selected="[[_tutorProfile.type]]">
             <option value="contracted">Contracted</option>
             <option value="private">Private</option>
           </select>
@@ -145,11 +204,11 @@ paper-button {
         <paper-input id="subject-tags-input" label="subject tags" name="subjectTags" value="[[_arrayToString(_tutorProfile.subjectTags)]]" on-keypress="_onTutorInputKeyPress"></paper-input>
         <paper-input id="university-input" label="university" name="university" required value="[[_tutorProfile.university]]" on-keypress="_onTutorInputKeyPress"></paper-input>
         <paper-input id="course-codes-input" label="course codes" name="courseCodes" required value="[[_arrayToString(_tutorProfile.courseCodes)]]" on-keypress="_onTutorInputKeyPress"></paper-input>
-        <paper-input id="hourly-rate-input" label="hourly-rate" name="hourlyRate" required type="number" min="0" step="10" value="[[_toFloat(_tutorProfile.hourlyRate)]]" on-keypress="_onTutorInputKeyPress"></paper-input>
-        <paper-textarea id="biography-input" label="biography" name="biography" value="[[_tutorProfile.biography]]" always-float-label></paper-textarea>
+        <paper-input id="hourly-rate-input" label="hourly rate" name="hourlyRate" required type="number" min="0" step="10" value="[[_toString(_tutorProfile.hourlyRate)]]" on-keypress="_onTutorInputKeyPress"></paper-input>
+        <paper-textarea id="biography-input" class="span" label="biography" name="biography" value="[[_tutorProfile.biography]]" always-float-label></paper-textarea>
         <!-- always float-label to fix bug: label not auto floating when setting value until typing -->
 
-        <paper-button id="update-user-profile-button" class="submit-button" raised on-click="_onUpdateTutorProfileButtonClick">[[_ifElse(_isTutor, 'Update', 'Register')]]</paper-button>
+        <paper-button id="update-tutor-profile-button" class="submit-button" raised on-click="_onUpdateTutorProfileButtonClick">[[_ifIncludesThen(_userProfile.roles.*, 'tutor', 'Update', 'Register')]]</paper-button>
       </form>
     </iron-form>
   </div>
@@ -167,7 +226,6 @@ export default class TutoriaProfilePage extends TutoriaElement {
     return {
       visible: {
         type: Boolean,
-        observer: '_onVisibleChanged'
       },
 
       pageTitle: {
@@ -176,30 +234,43 @@ export default class TutoriaProfilePage extends TutoriaElement {
         readOnly: true,
         notify: true
       },
-
-      _tutorProfile: {
-        type: Object,
-        computed: '_computeTutorProfile(_lastTutorProfileAjaxResponse)'
-      },
-
-      _isTutor: {
+      
+      _showStudentInput: {
         type: Boolean,
-        computed: '_computeIsTutor(_userProfile.roles.*)',
-        observer: '_onIsTutorChanged'
+        value: false,
+        reflectToAttribute: true
       },
       _showTutorInput: {
         type: Boolean,
         value: false,
-        observer: '_onShowTutorInputChanged',
         reflectToAttribute: true
       },
-
+      _studentProfile: {
+        type: Object
+      },
+      _tutorProfile: {
+        type: Object
+      },
 
       _lastUpdateUserProfileAjaxResponse: {
         observer: '_onLastUpdateUserProfileAjaxResponseChanged'
       },
       _lastUpdateUserProfileAjaxError: {
         observer: '_onLastUpdateUserProfileAjaxErrorChanged'
+      },
+
+      _lastStudentProfileAjaxResponse: {
+        observer: '_onLastStudentProfileAjaxResponse'
+      },
+      _lastTutorProfileAjaxResponse: {
+        observer: '_onLastTutorProfileAjaxResponse'
+      },
+
+      _lastUpdateStudentProfileAjaxResponse: {
+        observer: '_onLastUpdateStudentProfileAjaxResponseChanged'
+      },
+      _lastUpdateStudentProfileAjaxError: {
+        observer: '_onLastUpdateStudentProfileAjaxErrorChanged'
       },
 
       _lastUpdateTutorProfileAjaxResponse: {
@@ -211,9 +282,10 @@ export default class TutoriaProfilePage extends TutoriaElement {
     };
   }
 
-
-  _onVisibleChanged(visible) {
-    
+  static get observers() {
+    return [
+      '_onUserProfileChanged(_userProfile.*, visible)',
+    ];
   }
 
 
@@ -241,8 +313,16 @@ export default class TutoriaProfilePage extends TutoriaElement {
     }
   }
 
-  _ifElse(cond, truthy, falsy) {
-    return cond ? truthy : falsy;
+  _toString(value) {
+    return (value !== undefined && value != null) ? value.toString() : undefined;
+  }
+
+  _isIncludes(record, value) {
+    return record && Array.isArray(record.base) && record.base.includes(value);
+  }
+
+  _ifIncludesThen(record, value, truthy, falsy) {
+    return (record && Array.isArray(record.base) && record.base.includes(value)) ? truthy : falsy;
   }
 
 
@@ -297,35 +377,98 @@ export default class TutoriaProfilePage extends TutoriaElement {
       this.$['auth-manager'].refreshUserProfile();
     }
   }
+  
+  
+  
+  _onUserProfileChanged(profileRecord, visible) {
+    const profile = profileRecord && profileRecord.base;
+    if (profile && visible) {
 
+      if (profile.roles.includes('student')) {
+        this._showStudentInput = true;
+        this.$['student-profile-ajax'].generateRequest();
+      } else {
+        this._showStudentInput = false;
+        this._studentProfile = undefined;
+      }
 
-
-  _computeIsTutor(rolesRecord) {
-    const roles = rolesRecord.base;
-    return Boolean(roles && roles.includes('tutor'));
-  }
-
-  _onIsTutorChanged(isTutor) {
-    if (isTutor) {
-      this._showTutorInput = true;
+      if (profile.roles.includes('tutor')) {
+        this._showTutorInput = true;
+        this.$['tutor-profile-ajax'].generateRequest();
+      } else {
+        this._showTutorInput = false;
+        this._tutorProfile = undefined;
+      }
+      
+    } else {
+      this._showStudentInput = false;
+      this._showTutorInput = false;
+      this._studentProfile = undefined;
+      this._tutorProfile = undefined;
     }
   }
+
+
+
+  _onLastStudentProfileAjaxResponse(response) {
+    this._studentProfile = response && response.data;
+  }
+
+  _onLastTutorProfileAjaxResponse(response) {
+    let tutor = response && response.data;
+    if (tutor) {
+      tutor.hourlyRate = Number.parseFloat(tutor.hourlyRate);
+    }
+    this._tutorProfile = tutor;
+  }
+
+
+
+  _onRegisterStudentButtonClick(evt) {
+    this._showStudentInput = true;
+  }
+
+  _onStudentInputKeyPress(evt) {
+    if (evt.key === 'Enter') {
+      this.$['student-iron-form'].submit();
+    }
+  }
+
+  _onUpdateStudentProfileButtonClick(evt) {
+    this.$['student-iron-form'].submit();
+  }
+
+  _onStudentIronFormPresubmit(evt) {
+    evt.preventDefault();
+    const ironForm = evt.target;
+
+    let serializeForm = ironForm.serializeForm();
+    let params = {};
+    for (let key in serializeForm) {
+      switch (key) {
+        default:
+          params[key] = serializeForm[key] || '';
+      }
+    }
+
+    this.$['update-student-profile-ajax'].body = params;
+    this.$['update-student-profile-ajax'].generateRequest();
+  }
+
+  _onLastUpdateStudentProfileAjaxErrorChanged(errorResponse) {
+    const error = errorResponse && errorResponse.response && errorResponse.response.error;
+  }
+
+  _onLastUpdateStudentProfileAjaxResponseChanged(response) {
+    if (response) {
+      this.$['auth-manager'].refreshUserProfile();
+    }
+  }
+
+
 
   _onRegisterTutorButtonClick(evt) {
     this._showTutorInput = true;
-  }
-
-  _onShowTutorInputChanged(showTutorInput) {
-    if (showTutorInput) {
-      this.$['tutor-profile-ajax'].generateRequest();
-    }
-  }
-
-
-
-
-  _computeTutorProfile(response) {
-    return response && response.data;
   }
 
   _onTutorInputKeyPress(evt) {
@@ -353,7 +496,8 @@ export default class TutoriaProfilePage extends TutoriaElement {
           break;
         case 'subjectTags':
         case 'courseCodes':
-          params[key] = serializeForm[key].split(',')
+          params[key] = typeof serializeForm[key] !== 'string' ? [] :
+              serializeForm[key].split(',')
               .map(s => s.trim())
               .filter(s => Boolean(s));
           break;
@@ -379,10 +523,8 @@ export default class TutoriaProfilePage extends TutoriaElement {
   _onLastUpdateTutorProfileAjaxResponseChanged(response) {
     if (response) {
       this.$['auth-manager'].refreshUserProfile();
-      this.$['tutor-profile-ajax'].generateRequest();
     }
   }
-
 
 
 
