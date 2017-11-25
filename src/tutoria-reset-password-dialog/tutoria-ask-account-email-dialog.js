@@ -79,6 +79,13 @@ export default class TutoriaAskAccountEmailDialog extends TutoriaDialog {
     }];
   }
 
+  show() {
+    return super.show()
+    .then(() => {
+      this.$['email-input'].focus();
+    });
+  }
+
   _onCancelButtonClick(evt) {
     this.hide().then(() => {
       this.dispatchEvent(new CustomEvent('tutoria-ask-account-email-dialog-cancel', {

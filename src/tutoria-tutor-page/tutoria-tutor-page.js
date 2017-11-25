@@ -89,6 +89,9 @@ article {
 .value.span {
   grid-column: 1 / -1;
 }
+.value.wrappable {
+  flex-wrap: wrap;
+}
 
 #full-name {
   @apply --tutoria-text--headline_font;
@@ -158,10 +161,10 @@ article {
       <div id="university" class="value">[[_tutor.university]]</div>
 
       <div class="label">Course Code:</div>
-      <div id="course-code" class="value">[[_tutor.courseCode]]</div>
+      <div id="course-code" class="value">[[_tutor.courseCodes]]</div>
       
       <div class="label">Subject Tags:</div>
-      <div id="subject-tags" class="value">
+      <div id="subject-tags" class="value wrappable">
         <template is="dom-repeat" items="[[_tutor.subjectTags]]" as="subjectTag">
           <div class="subject-tag">[[subjectTag]]</div>
         </template>
@@ -202,6 +205,7 @@ article {
       <tutoria-review class="review"
         avatar="[[review.student.avatar]]"
         full-name="[[review.student.fullName]]"
+        anonymous="[[review.anonymous]]"
         score="[[review.score]]"
         time="[[review.time]]"
         comment="[[review.comment]]">

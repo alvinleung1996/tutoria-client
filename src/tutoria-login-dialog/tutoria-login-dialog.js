@@ -66,6 +66,7 @@ export default class TutoriaLoginDialog extends TutoriaDialog {
     .then((resolve, reject) => {
       this._resolveDialog = resolve;
       this._rejectDialog = reject;
+      this.$['username-input'].focus();
     });
   }
 

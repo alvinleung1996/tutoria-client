@@ -95,6 +95,7 @@ export default class TutoriaRatingBar extends TutoriaElement {
   }
 
   _computeStars(rating, maxRating) {
+    rating = Math.round(rating);
     let stars = [];
     for (let i = 0; i < maxRating; ++i) {
       stars.push({

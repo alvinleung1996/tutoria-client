@@ -43,6 +43,7 @@ export const template = `
 
   .sorting-arrow {
     margin-left: 8px;
+    transition: transform 200ms ease-out;
   }
   .header[align-right] .sorting-arrow {
     margin-left: unset;
@@ -55,7 +56,7 @@ export const template = `
     visibility: hidden;
   }
   .header[sorting-order="descending"] .sorting-arrow {
-    transform: rotate(180deg);
+    transform: scaleY(-1);
   }
 
   .row {

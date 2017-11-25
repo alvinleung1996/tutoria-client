@@ -67,7 +67,7 @@ export const contentTemplate = `
   <span class="value">[[_messageDetail.receiveUser.fullName]]</span>
 
 </div>
-<div id="message-content">[[_messageDetail.content]]</div>
+<div id="message-content" inner-h-t-m-l="[[_messageDetail.content]]" on-click="_onMessageContentClick"></div>
 `;
 
 export default class TutoriaMessageDetailDialog extends TutoriaDialog {
@@ -126,6 +126,13 @@ export default class TutoriaMessageDetailDialog extends TutoriaDialog {
 
 
 
+  hide() {
+    return super.hide()
+    .then(() => this._dispatchCloseEvent());
+  }
+
+
+
   _dateToString(value) {
     return value && value.toLocaleString();
   }
@@ -153,15 +160,26 @@ export default class TutoriaMessageDetailDialog extends TutoriaDialog {
 
 
 
+  _onMessageContentClick(evt) {
+    if (evt.target.hasAttribute && evt.target.hasAttribute('close-dialog-on-click')) {
+      this.hide();
+    }
+  }
+
+
+
   _onCloseButtonClick(dialog, button) {
-    this.hide()
-    .then(() => {
-      this.dispatchEvent(new CustomEvent('tutoria-message-detail-dialog-close', {
-        detail: {
-          dialog: this
-        }
-      }));
-    })
+    this.hide();
+  }
+
+  
+
+  _dispatchCloseEvent() {
+    this.dispatchEvent(new CustomEvent('tutoria-message-detail-dialog-close', {
+      detail: {
+        dialog: this
+      }
+    }));
   }
 
 }

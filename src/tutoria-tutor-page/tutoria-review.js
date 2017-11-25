@@ -1,6 +1,7 @@
 import TutoriaElement from '../tutoria-element/tutoria-element.js';
-
 import '../../node_modules/@webcomponents/shadycss/apply-shim.min.js';
+
+import '../../node_modules/@polymer/iron-image/iron-image.js';
 
 import '../tutoria-rating-bar/tutoria-rating-bar.js';
 
@@ -30,6 +31,8 @@ const template = `
   left: -4px;
   /* Cannot use flex here, not working */
   width: 56px;
+  height: 56px;
+  border-radius: 50%;
 }
 #info {
   flex: 1 1 auto;
@@ -63,7 +66,7 @@ const template = `
 
 <div id="header">
   <div id="avatar-div">
-    <img id="avatar" src$="[[avatar]]">
+    <iron-image id="avatar" src="[[avatar]]" sizing="contain" preload fade></iron-image>
   </div>
   <div id="info">
     <div id="name">[[_formattedName]]</div>
@@ -86,13 +89,14 @@ export default class TutoriaReview extends TutoriaElement {
     return {
       avatar: String,
       fullName: String,
+      anonymous: Boolean,
       score: Number,
       time: Number,
       comment: String,
 
       _formattedName: {
         type: String,
-        computed: '_computeFormattedName(fullName)'
+        computed: '_computeFormattedName(anonymous, fullName)'
       },
       _formattedTime: {
         type: String,
@@ -101,8 +105,8 @@ export default class TutoriaReview extends TutoriaElement {
     };
   }
 
-  _computeFormattedName(fullName) {
-    return fullName || 'anonymous';
+  _computeFormattedName(anonymous, fullName) {
+    return anonymous ? 'Anonymous' : fullName;
   }
 
   _computeFormattedTime(time) {

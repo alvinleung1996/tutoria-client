@@ -58,6 +58,9 @@ ${TutoriaDialogTemplates.contentStyles}
 .value {
   justify-self: end;
 }
+.value[error] {
+  color: red;
+}
 
 #coupon-code-form {
   display: flex;
@@ -78,7 +81,7 @@ export const contentTemplate = `
   <div class="divider payment-only"></div>
 
   <label class="label payment-only" for="account-balance">Account balance: </label>
-  <div id="account-balance" class="value payment-only">$ [[_bill.balance]]</div>
+  <div id="account-balance" class="value payment-only" error$="[[!_bill.isPayable]]">$ [[_bill.balance]]</div>
 
   <div class="divider payment-only"></div>
 

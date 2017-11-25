@@ -161,7 +161,7 @@ paper-button {
         <paper-input id="email-input" label="email" name="email" required value="[[_userProfile.email]]" on-keypress="_onUserInputKeyPress"></paper-input>
         <paper-input id="given-name-input" label="given name" name="givenName" required value="[[_userProfile.givenName]]" on-keypress="_onUserInputKeyPress"></paper-input>
         <paper-input id="family-name-input" label="family name" name="familyName" required value="[[_userProfile.familyName]]" on-keypress="_onUserInputKeyPress"></paper-input>
-        <paper-input id="phone-number-input" label="phone number" name="phoneNumber" required type="number" value="[[_userProfile.phoneNumber]]" on-keypress="_onUserInputKeyPress"></paper-input>
+        <paper-input id="phone-number-input" label="phone number" name="phoneNumber" required type="tel" value="[[_userProfile.phoneNumber]]" on-keypress="_onUserInputKeyPress"></paper-input>
         
         <paper-button id="update-user-profile-button" class="submit-button" raised on-click="_onUpdateUserProfileButtonClick">Update</paper-button>
       </form>
@@ -195,15 +195,15 @@ paper-button {
       <form>
         <div id="tutor-type-input" class="select-input-layout">
           <label class="select-input-label" for="tutor-type-input_select">tutor type:</label>
-          <select id="tutor-type-input_select" class="select-input" label="tutor type" name="type" required selected="[[_tutorProfile.type]]">
-            <option value="contracted">Contracted</option>
-            <option value="private">Private</option>
+          <select id="tutor-type-input_select" class="select-input" label="tutor type" name="type" required>
+            <option value="contracted" selected$="[[_isEquals(_tutorProfile.type, 'contracted')]]">Contracted</option>
+            <option value="private" selected$="[[_isEquals(_tutorProfile.type, 'private')]]">Private</option>
           </select>
         </div>
         <paper-checkbox id="activated-input" name="activated" checked="[[_toBoolean(_tutorProfile.activated)]]">Activate tutor profile</paper-checkbox>
         <paper-input id="subject-tags-input" label="subject tags" name="subjectTags" value="[[_arrayToString(_tutorProfile.subjectTags)]]" on-keypress="_onTutorInputKeyPress"></paper-input>
         <paper-input id="university-input" label="university" name="university" required value="[[_tutorProfile.university]]" on-keypress="_onTutorInputKeyPress"></paper-input>
-        <paper-input id="course-codes-input" label="course codes" name="courseCodes" required value="[[_arrayToString(_tutorProfile.courseCodes)]]" on-keypress="_onTutorInputKeyPress"></paper-input>
+        <paper-input id="course-codes-input" label="course codes" name="courseCodes" value="[[_arrayToString(_tutorProfile.courseCodes)]]" on-keypress="_onTutorInputKeyPress"></paper-input>
         <paper-input id="hourly-rate-input" label="hourly rate" name="hourlyRate" required type="number" min="0" step="10" value="[[_toString(_tutorProfile.hourlyRate)]]" on-keypress="_onTutorInputKeyPress"></paper-input>
         <paper-textarea id="biography-input" class="span" label="biography" name="biography" value="[[_tutorProfile.biography]]" always-float-label></paper-textarea>
         <!-- always float-label to fix bug: label not auto floating when setting value until typing -->
@@ -312,6 +312,10 @@ export default class TutoriaProfilePage extends TutoriaElement {
 
   _ifIncludesThen(record, value, truthy, falsy) {
     return (record && Array.isArray(record.base) && record.base.includes(value)) ? truthy : falsy;
+  }
+
+  _isEquals(a, b) {
+    return a === b;
   }
 
 

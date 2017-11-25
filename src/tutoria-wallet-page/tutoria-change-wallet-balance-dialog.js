@@ -23,13 +23,17 @@ export const otherTemplate = `
 export const contentStyles = `
 ${TutoriaDialogTemplates.contentStyles}
 <style>
-
+.form-message {
+  @apply --tutoria-text--body1_font;
+  color: var(--tutoria-text--secondary_color);
+}
 </style>
 `;
 
 export const contentTemplate = `
 <iron-form id="iron-form">
   <form>
+    <p class="form-message span">To deposit money, enter a positive number.<br>To withdraw money, enter a negative number.</p>
     <paper-input id="amount-input" label="amount delta" name="amountDelta" required type="number" value="0"></paper-input>
   </form>
 </iron-form>
@@ -53,7 +57,7 @@ export default class TutoriaChangeWalletBalanceDialog extends TutoriaDialog {
       },
       width: {
         type: Number,
-        value: '300px'
+        value: '400px'
       },
 
       _lastUpdateWalletAjaxResponse: {
@@ -76,6 +80,13 @@ export default class TutoriaChangeWalletBalanceDialog extends TutoriaDialog {
       style: 'color: dodgerblue;',
       callback: (d, b) => this._onAddButtonClick(d, b)
     }]
+  }
+
+  show() {
+    return super.show()
+    .then(() => {
+      this.$['amount-input'].focus();
+    });
   }
 
   _onCancelButtonClick(dialog, button) {

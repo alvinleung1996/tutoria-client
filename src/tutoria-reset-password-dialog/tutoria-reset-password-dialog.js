@@ -30,7 +30,7 @@ export const contentTemplate = `
   <form>
     <paper-input id="access-token-input" label="access token" name="accessToken" required on-keypress="_onInputKeyPress"></paper-input>
     <paper-input id="username-input" label="username" name="username" required on-keypress="_onInputKeyPress"></paper-input>
-    <paper-input id="password-input" label="password" name="password" type="password" required on-keypress="_onInputKeyPress"></paper-input>
+    <paper-input id="password-input" label="new password" name="password" type="password" required on-keypress="_onInputKeyPress"></paper-input>
   </form>
 </iron-form>
 `;
@@ -76,6 +76,13 @@ export default class TutoriaResetPasswordDialog extends TutoriaDialog {
       raised: true,
       callback: () => this._onNextButtonClick()
     }];
+  }
+
+  show() {
+    return super.show()
+    .then(() => {
+      this.$['access-token-input'].focus();
+    });
   }
 
   _onCancelButtonClick(evt) {

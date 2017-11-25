@@ -84,6 +84,13 @@ export default class TutoriaSignUpDialog extends TutoriaDialog {
     }];
   }
 
+  show() {
+    return super.show()
+    .then(() => {
+      this.$['username-input'].focus();
+    });
+  }
+
   _onCancelButtonClick(evt) {
     this.hide().then(() => {
       this.dispatchEvent(new CustomEvent('tutoria-sign-up-dialog-cancel', {

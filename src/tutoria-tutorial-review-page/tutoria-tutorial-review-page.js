@@ -86,7 +86,7 @@ export const template = `
 
   #review-iron-form form {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(100px, auto) 1fr;
     grid-gap: 16px 16px;
     align-items: center;
   }
@@ -152,7 +152,7 @@ export const template = `
   </div>
   <iron-form id="review-iron-form" on-iron-form-presubmit="_onReviewIronFormPresubmit">
     <form>
-      <paper-input id="score-input" class="short-field" label="score" name="score" value="3" required type="number" min="1" max="5" on-keypress="_onReviewInputKeyPress"></paper-input>
+      <paper-input id="score-input" label="score" name="score" value="3" required type="number" min="0" max="5" on-keypress="_onReviewInputKeyPress"></paper-input>
       <paper-checkbox id="anonymous-input" class="short-field" name="anonymous">Keep review anonymous</paper-checkbox>
       <paper-textarea id="comment-input" label="comment" name="comment"></paper-textarea>
       
@@ -218,7 +218,9 @@ export default class TutoriaTutorialReviewPage extends TutoriaElement {
   _computeTutorial(response) {
     const tutorial = response && response.data;
     if (!tutorial) {
-      return undefined;
+      return {
+        reviewable: false
+      };
     }
 
     tutorial.startTime = new Date(tutorial.startTime)
