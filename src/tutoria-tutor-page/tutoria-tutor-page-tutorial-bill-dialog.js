@@ -268,12 +268,16 @@ export default class TutoriaTutorialBillDialog extends TutoriaDialog {
     if (!bill) {
       return undefined;
     }
-    return {
+    let body = {
       studentUsername: bill.studentUsername,
       tutorUsername: bill.tutorUsername,
       startTime: bill.startTime.toISOString(),
       endTime: bill.endTime.toISOString()
     };
+    if (bill.couponCode !== undefined && bill.couponCode !== null) {
+      body.couponCode = bill.couponCode;
+    }
+    return body;
   }
   
   _computeConfirmedBill(response, error) {

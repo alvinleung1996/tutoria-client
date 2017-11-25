@@ -302,17 +302,6 @@ export default class TutoriaProfilePage extends TutoriaElement {
     }
   }
 
-  _toFloat(value) {
-    if (value === undefined || value === null) {
-      return undefined;
-    }
-    try {
-      return Number.parseFloat(value);
-    } catch (e) {
-      return undefined;
-    }
-  }
-
   _toString(value) {
     return (value !== undefined && value != null) ? value.toString() : undefined;
   }

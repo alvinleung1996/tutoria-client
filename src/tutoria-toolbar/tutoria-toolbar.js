@@ -86,8 +86,8 @@ const template = `
   --paper-tab-ink: var(--tutoria-text--app-theme--primary_color);
 }
 .tab-link {
-  padding-left: 8px;
-  padding-right: 8px;
+  padding-left: 16px;
+  padding-right: 16px;
   display: flex;
   justify-content: center;
   align-items: center;
