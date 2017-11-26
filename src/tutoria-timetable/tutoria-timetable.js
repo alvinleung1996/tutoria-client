@@ -9,7 +9,7 @@ export const template = `
 :host {
   --tutoria-timetable__day-column-header_height: 56px;
   --tutoria-timetable__day-column_width: 100px;
-  --tutoria-timetable__day-column_height: 700px;
+  --tutoria-timetable__day-column_height: 1000px;
   --tutoria-timetable__timestamp-header_width: 56px;
 
   overflow: auto;
@@ -68,6 +68,7 @@ dom-repeat {
   grid-row: 2 / 3;
   grid-column-start: 2;
   position: relative;
+  overflow-y: hidden;
 }
 .timestamp-marker {
   position: absolute;
@@ -109,59 +110,63 @@ dom-repeat {
   position: absolute;
   left: 0px;
   right: 0px;
-  background-color: yellow;
+  border: 1px solid var(--tutoria-accent_color);
+  border-radius: 2px;
+  background-color: lightgrey;
+}
+.event[selectable] {
+  cursor: pointer;
 }
 </style>
 
 <div id="table">
 
-    <div id="timestamp-headers">
-      <template is="dom-repeat" items="[[_timestamps]]" as="timestamp">
-        <div class="timestamp-header" style$="[[_computeTimestampPositionStyle(dayStartTimeOffset, dayEndTimeOffset, timestamp.timeOffset)]]">[[timestamp.text]]</div>
-      </template>
-    </div>
-
-    <div id="timestamp-markers" style$="grid-column-end: span [[_days.length]];">
-      <template is="dom-repeat" items="[[_timestamps]]" as="timestamp">
-        <div class="timestamp-marker" style$="[[_computeTimestampPositionStyle(dayStartTimeOffset, dayEndTimeOffset, timestamp.timeOffset)]]"></div>
-      </template>
-    </div>
-
-    <template is="dom-repeat" items="[[_days]]" as="day">
-      <div class$="day-column-header [[_computeDayColumnClass(index, _days.length)]]" style$="[[_computeDayColumnStartStyle(index)]]">[[day.displayText]]</div>
+  <div id="timestamp-headers">
+    <template is="dom-repeat" items="[[_timestamps]]" as="timestamp">
+      <div class="timestamp-header" style$="[[_computeTimestampPositionStyle(dayStartTimeOffset, dayEndTimeOffset, timestamp.timeOffset)]]">[[timestamp.text]]</div>
     </template>
-
-    <template is="dom-repeat" items="[[_days]]" as="day">
-      <div class$="day-column [[_computeDayColumnClass(index, _days.length)]]" style$="[[_computeDayColumnStartStyle(index)]]"
-        on-click="_onDayColumnClicked">
-        <template is="dom-repeat" items="[[day.events]]" as="event">
-          <div class="event" style$="[[_computeEventPositionStyles(dayStartTimeOffset, dayEndTimeOffset, event.startDate, event.endDate)]]" on-click="_onEventClicked">[[event.description]]</div>
-        </template>
-      </div>
-    </template>
-
   </div>
+
+  <div id="timestamp-markers" style$="grid-column-end: span [[_days.length]];">
+    <template is="dom-repeat" items="[[_timestamps]]" as="timestamp">
+      <div class="timestamp-marker" style$="[[_computeTimestampPositionStyle(dayStartTimeOffset, dayEndTimeOffset, timestamp.timeOffset)]]"></div>
+    </template>
+  </div>
+
+  <template is="dom-repeat" items="[[_days]]" as="day">
+    <div class$="day-column-header [[_computeDayColumnClass(index, _days.length)]]" style$="[[_computeDayColumnStartStyle(index)]]">[[day.displayText]]</div>
+  </template>
+
+  <template is="dom-repeat" items="[[_days]]" as="day">
+    <div class$="day-column [[_computeDayColumnClass(index, _days.length)]]" style$="[[_computeDayColumnStartStyle(index)]]"
+      on-click="_onDayColumnClicked">
+      <template is="dom-repeat" items="[[day.events]]" as="event">
+        <div class="event" style$="[[_computeEventPositionStyles(dayStartTimeOffset, dayEndTimeOffset, event.startTime, event.endTime)]]" selectable$="[[event.selectable]]" on-click="_onEventClicked">[[event.description]]</div>
+      </template>
+    </div>
+  </template>
+
 </div>
 `;
 
-function _mock_date(dayOffset, hour, minute) {
-  let d = new Date();
-  d.setDate(d.getDate()+dayOffset);
-  d.setHours(hour);
-  d.setMinutes(minute);
-  d.setSeconds(0);
-  d.setMilliseconds(0);
-  return d;
+function getTime(dayOffset, hour, minute) {
+  let time = new Date();
+  time.setDate(time.getDate() + dayOffset);
+  time.setHours(hour);
+  time.setMinutes(minute);
+  time.setSeconds(0);
+  time.setMilliseconds(0);
+  return time;
 }
 
-function _mock_deltaTime(hour, minute) {
-  let d0 = new Date();
-  d0.setSeconds(0);
-  d0.setMilliseconds(0);
-  let d1 = new Date(d0.getTime());
-  d1.setHours(d1.getHours()+hour);
-  d1.setMinutes(d1.getMinutes()+minute);
-  return d1.getTime() - d0.getTime();
+function getTimeDelta(hour, minute) {
+  let time0 = new Date();
+  time0.setSeconds(0);
+  time0.setMilliseconds(0);
+  let time1 = new Date(time0.getTime());
+  time1.setHours(time1.getHours() + hour);
+  time1.setMinutes(time1.getMinutes() + minute);
+  return time1.getTime() - time0.getTime();
 }
 
 export default class TutoriaTimetable extends TutoriaElement {
@@ -172,45 +177,33 @@ export default class TutoriaTimetable extends TutoriaElement {
 
   static get properties() {
     return {
-      periodStartDate: { // include
+      periodStartTime: { // include
         type: Date,
-        value: _mock_date(0, 0, 0)
+        value: getTime(0, 0, 0)
       },
-      periodEndDate: { // exclude
+      periodEndTime: { // exclude
         type: Date,
-        value: _mock_date(7, 0, 0)
+        value: getTime(7, 0, 0)
       },
       dayStartTimeOffset: { // include
         type: Number,
-        value: _mock_deltaTime(0, 0)
+        value: getTimeDelta(0, 0)
       },
       dayEndTimeOffset: { // exclude
         type: Number,
-        value: _mock_deltaTime(24, 0)
+        value: getTimeDelta(24, 0)
       },
       timestampTimeOffset: {
         type: Number,
-        value: _mock_deltaTime(0, 0)
+        value: getTimeDelta(0, 0)
       },
       timestampTimeInterval: {
         type: Number,
-        value: _mock_deltaTime(1, 0)
+        value: getTimeDelta(1, 0)
       },
       events: {
         type: Array,
         value: () => []
-        // value: () => [
-        //   {
-        //     startDate: _mock_date(2, 0, 0),
-        //     endDate: _mock_date(2, 2, 30),
-        //     name: 'Meeting with god'
-        //   },
-        //   {
-        //     startDate: _mock_date(3, 2, 30),
-        //     endDate: _mock_date(3, 6, 0),
-        //     name: 'Meeting with hell'
-        //   }
-        // ]
       },
 
       _timestamps: {
@@ -219,74 +212,72 @@ export default class TutoriaTimetable extends TutoriaElement {
       },
       _days: {
         type: Array,
-        computed: '_computeDays(periodStartDate, periodEndDate, dayStartTimeOffset, dayEndTimeOffset, events.*)'
+        computed: '_computeDays(periodStartTime, periodEndTime, dayStartTimeOffset, dayEndTimeOffset, events.*)'
       },
     };
-  }
-
-  static get observers() {
-    return [
-    ];
   }
 
   _computeTimeStamps(dayStartTimeOffset, dayEndTimeOffset, timestampTimeOffset, timestampTimeInterval) {
     let timestamps = [];
 
-    let baseDate = new Date();
-    baseDate.setHours(0); baseDate.setMinutes(0); baseDate.setSeconds(0); baseDate.setMilliseconds(0);
+    let baseTime = new Date();
+    baseTime.setHours(0); baseTime.setMinutes(0); baseTime.setSeconds(0); baseTime.setMilliseconds(0);
 
-    let startDate = new Date(baseDate.getTime() + dayStartTimeOffset);
-    let endDate = new Date(baseDate.getTime() + dayEndTimeOffset);
+    let startTime = new Date(baseTime.getTime() + dayStartTimeOffset);
+    let endTime = new Date(baseTime.getTime() + dayEndTimeOffset);
     
-    for (let timestampDate = new Date(startDate.getTime() + timestampTimeOffset);
-         timestampDate.getTime() <= endDate.getTime(); // Use equal sign here to show the last timestamp
-         timestampDate.setTime(timestampDate.getTime() + timestampTimeInterval))
+    for (let timestampTime = new Date(startTime.getTime() + timestampTimeOffset);
+         timestampTime.getTime() <= endTime.getTime(); // Use equal sign here to show the last timestamp
+         timestampTime.setTime(timestampTime.getTime() + timestampTimeInterval))
     {
       timestamps.push({
-        timeOffset: timestampDate.getTime() - startDate.getTime(),
-        text: `${timestampDate.getHours().toString().padStart(2,'0')}`
+        timeOffset: timestampTime.getTime() - startTime.getTime(),
+        text: `${timestampTime.getHours().toString().padStart(2,'0')}`
       });
     }
 
     return timestamps;
   }
 
-  _computeDays(periodStartDate, periodEndDate, dayStartTimeOffset, dayEndTimeOffset, eventsRecord) {
+  _computeDays(periodStartTime, periodEndTime, dayStartTimeOffset, dayEndTimeOffset, eventsRecord) {
     const events = eventsRecord && eventsRecord.base;
 
     let days = [];
-    for (let day = new Date(periodStartDate.getTime()); day.getTime() < periodEndDate.getTime(); day.setDate(day.getDate()+1)) {
+    for (let day = new Date(periodStartTime.getTime()); day.getTime() < periodEndTime.getTime(); day.setDate(day.getDate()+1)) {
       days.push({
-        startDate: new Date(day.getTime() + dayStartTimeOffset),
-        endDate: new Date(day.getTime() + dayEndTimeOffset),
+        startTime: new Date(day.getTime() + dayStartTimeOffset),
+        endTime: new Date(day.getTime() + dayEndTimeOffset),
         displayText: `${day.getDate()} / ${day.getMonth()+1}`,
         events: []
       });
     }
 
     let computedEvents = [];
-    for (const event of events) {
-      let startDate = new Date(event.startDate.getTime());
-      let endDate = new Date(event.endDate.getTime());
-      while (startDate.getTime() < endDate.getTime()) {
-        let nextDate = new Date(startDate.getTime());
-        nextDate.setDate(nextDate.getDate()+1); nextDate.setHours(0); nextDate.setMinutes(0); nextDate.setSeconds(0); nextDate.setMilliseconds(0);
-        computedEvents.push({
-          startDate: new Date(startDate.getTime()),
-          endDate: new Date(Math.min(endDate.getTime(), nextDate.getTime())),
-          description: event.description,
-          originalEvent: event
-        });
-        startDate = nextDate;
+    if (events) {
+      for (const event of events) {
+        let startTime = new Date(event.startTime.getTime());
+        let endTime = new Date(event.endTime.getTime());
+        while (startTime.getTime() < endTime.getTime()) {
+          let nextTime = new Date(startTime.getTime());
+          nextTime.setDate(nextTime.getDate()+1); nextTime.setHours(0); nextTime.setMinutes(0); nextTime.setSeconds(0); nextTime.setMilliseconds(0);
+          computedEvents.push({
+            startTime: new Date(startTime.getTime()),
+            endTime: new Date(Math.min(endTime.getTime(), nextTime.getTime())),
+            description: event.description,
+            selectable: event.selectable,
+            originalEvent: event
+          });
+          startTime = nextTime;
+        }
       }
     }
 
     let dayLength = dayEndTimeOffset - dayStartTimeOffset;
     for (const event of computedEvents) {
       for (const day of days) {
-        if (event.startDate.getTime() < day.endDate.getTime() && day.startDate.getTime() < event.endDate.getTime()) {
-          event.startDate = new Date(Math.max(event.startDate.getTime(), day.startDate.getTime()));
-          event.endDate = new Date(Math.min(event.endDate.getTime(), day.endDate.getTime()));
+        if (event.startTime.getTime() < day.endTime.getTime() && day.startTime.getTime() < event.endTime.getTime()) {
+          event.startTime = new Date(Math.max(event.startTime.getTime(), day.startTime.getTime()));
+          event.endTime = new Date(Math.min(event.endTime.getTime(), day.endTime.getTime()));
           day.events.push(event);
           break;
         }
@@ -313,13 +304,13 @@ export default class TutoriaTimetable extends TutoriaElement {
   }
 
   _computeEventPositionStyles(dayStartTimeOffset, dayEndTimeOffset, eventStartDate, eventEndDate) {
-    let baseDate = new Date(eventStartDate.getTime());
-    baseDate.setHours(0); baseDate.setMinutes(0); baseDate.setSeconds(0); baseDate.setMilliseconds(0);
+    let baseTime = new Date(eventStartDate.getTime());
+    baseTime.setHours(0); baseTime.setMinutes(0); baseTime.setSeconds(0); baseTime.setMilliseconds(0);
 
     let dayLength = dayEndTimeOffset - dayStartTimeOffset;
 
-    let top = (eventStartDate.getTime() - baseDate.getTime() - dayStartTimeOffset) / dayLength * 100;
-    let bottom = (baseDate.getTime() + dayEndTimeOffset - eventEndDate.getTime()) / dayLength * 100;
+    let top = (eventStartDate.getTime() - baseTime.getTime() - dayStartTimeOffset) / dayLength * 100;
+    let bottom = (baseTime.getTime() + dayEndTimeOffset - eventEndDate.getTime()) / dayLength * 100;
     // Percentage is OK since the div is absolute positioned.
     return `top:${top}%;bottom:${bottom}%;`;
   }
@@ -332,21 +323,23 @@ export default class TutoriaTimetable extends TutoriaElement {
     }
     
     const mouseY = evt.offsetY;
-    const dayStartDate = evt.model.day.startDate;
-    const dayEndDate = evt.model.day.endDate;
+    const dayStartTime = evt.model.day.startTime;
+    const dayEndTime = evt.model.day.endTime;
 
-    let selectedDate = new Date(dayStartDate.getTime() + evt.offsetY * (dayEndDate.getTime() - dayStartDate.getTime()) / evt.target.clientHeight);
+    let selectedTime = new Date(dayStartTime.getTime() + evt.offsetY * (dayEndTime.getTime() - dayStartTime.getTime()) / evt.target.clientHeight);
 
-    this.dispatchEvent(new CustomEvent('tutoria-timetable-date-selected', {
+    this.dispatchEvent(new CustomEvent('tutoria-timetable-time-selected', {
       detail: {
-        selectedDate: selectedDate
+        selectedTime: selectedTime
       }
     }));
   }
 
   _onEventClicked(evt) {
     const selectedEvent = evt.model.event;
-
+    if (!selectedEvent.selectable) {
+      return;
+    }
     this.dispatchEvent(new CustomEvent('tutoria-timetable-event-selected', {
       detail: {
         selectedEvent: selectedEvent

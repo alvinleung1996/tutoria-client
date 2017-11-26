@@ -24,9 +24,11 @@ const template = `
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  /* TODO: Add transition for filter */
 }
-:host > *:last-child {
-  pointer-events: auto;
+:host > ::slotted(:not(:last-child)) {
+  pointer-events: none;
+  filter: brightness(0.5);
 }
 </style>
 <slot></slot>
@@ -44,7 +46,8 @@ export default class TutoriaDialogContainer extends TutoriaElement {
         type: Boolean,
         computed: '_computeShowingDialog(_dialogCount)',
         reflectToAttribute: true,
-        notify: true
+        notify: true,
+        observer: '_onShowingDialogChanged'
       },
       _dialogCount: {
         type: Number,
@@ -73,6 +76,23 @@ export default class TutoriaDialogContainer extends TutoriaElement {
 
   _computeShowingDialog(dialogCount) {
     return dialogCount > 0;
+  }
+
+  _onShowingDialogChanged(showing) {
+    let style = '/**tutoria-dialog-container*/overflow: hidden;/*tutoria-dialog-container**/';
+    let bodyStyle = document.body.hasAttribute('style') ? document.body.getAttribute('style') : '';
+    let containStyle = bodyStyle.includes(style);
+    let styleChanged = false;
+    if (showing && !containStyle) {
+      bodyStyle = style + bodyStyle;
+      styleChanged = true;
+    } else if (!showing && containStyle) {
+      bodyStyle = bodyStyle.replace(style, '');
+      styleChanged = true;
+    }
+    if (styleChanged) {
+      document.body.setAttribute('style', bodyStyle);
+    }
   }
 
   showDialog(dialog, animated = true) {

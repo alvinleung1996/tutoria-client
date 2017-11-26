@@ -1,29 +1,36 @@
-import {Element as PolymerElement} from '../../node_modules/@polymer/polymer/polymer-element.js';
+import TutoriaElement from '../tutoria-element/tutoria-element.js';
+
+import '../tutoria-api/tutoria-auth-manager.js';
 
 import '../tutoria-dynamic-pages/tutoria-dynamic-pages.js';
 
 const template = `
 
 <style>
-:host {
-  display: block;
-}
-#dynamic-pages {
-  width: 100%;
-  height: 100%;
-}
-#dynamic-pages > * {
-  top: var(--tutoria-toolbar--normal_height);
-  transition: top var(--tutoria-toolbar_height-transition-duration) var(--tutoria-toolbar_height-transition-timing-function);
-}
-#dynamic-pages[short-toolbar] > * {
-  top: var(--tutoria-toolbar--short_height);
-}
+  :host {
+    display: block;
+  }
+  #dynamic-pages {
+    width: 100%;
+    height: 100%;
+  }
+  #dynamic-pages > * {
+    top: var(--tutoria-toolbar--normal_height);
+    transition: top var(--tutoria-toolbar_height-transition-duration) var(--tutoria-toolbar_height-transition-timing-function);
+  }
+  #dynamic-pages[short-toolbar] > * {
+    top: var(--tutoria-toolbar--short_height);
+  }
 </style>
+
+<tutoria-auth-manager
+  logged-in="{{_loggedIn}}"
+  user-profile="{{_userProfile}}">
+</tutoria-auth-manager>
 
 <tutoria-dynamic-pages
   id="dynamic-pages"
-  path-to-page-maps="[[_pathToPageMaps]]"
+  path-to-page-maps="[[_filteredPathToPageMaps]]"
   path="[[path]]"
   path-match-result="{{_pathMatchResult}}"
   selected-page="{{_selectedPage}}"
@@ -33,7 +40,7 @@ const template = `
 
 `;
 
-export default class TutoriaPages extends PolymerElement {
+export default class TutoriaPages extends TutoriaElement {
 
   static get template() {
     return template;
@@ -66,20 +73,51 @@ export default class TutoriaPages extends PolymerElement {
         value: () => [
           {
             pathPattern: /^\/search\??$/,
+            requiredRoles: ['student'],
             importPage: () => import(/* webpackChunkName: "search-result-page" */ '../tutoria-search-result-page/tutoria-search-result-page.js'),
             pageTagName: 'tutoria-search-result-page'
           },
           {
-            pathPattern: /^\/tutor\/(.*)$/,
+            pathPattern: /^\/tutors\/(.*)$/,
+            requiredRoles: ['student'],
             importPage: () => import(/* webpackChunkName: "tutor-page" */ '../tutoria-tutor-page/tutoria-tutor-page.js'),
             pageTagName: 'tutoria-tutor-page'
           },
           {
-            pathPattern: /^/,
-            importPage: () => import(/* webpackChunkName: "home-page" */ '../tutoria-home-page/tutoria-home-page.js'),
-            pageTagName: 'tutoria-home-page'
+            pathPattern: /^\/profile$/,
+            requiredRoles: [],
+            importPage: () => import(/* webpackChunkName: "profile-page" */ '../tutoria-profile-page/tutoria-profile-page.js'),
+            pageTagName: 'tutoria-profile-page'
+          },
+          {
+            pathPattern: /^\/wallet$/,
+            requiredRoles: [],
+            importPage: () => import(/* webpackChunkName: "wallet-page" */ '../tutoria-wallet-page/tutoria-wallet-page.js'),
+            pageTagName: 'tutoria-wallet-page'
+          },
+          {
+            pathPattern: /^\/messages$/,
+            requiredRoles: [],
+            importPage: () => import(/* webpackChunkName: "messages-page" */ '../tutoria-messages-page/tutoria-messages-page.js'),
+            pageTagName: 'tutoria-messages-page'
+          },
+          {
+            pathPattern: /^\/tutorials\/(\w+)\/review$/,
+            requiredRoles: [],
+            importPage: () => import(/* webpackChunkName: "tutorial-review-page" */ '../tutoria-tutorial-review-page/tutoria-tutorial-review-page.js'),
+            pageTagName: 'tutoria-tutorial-review-page'
+          },
+          {
+            pathPattern: /^\/dashboard/,
+            requiredRoles: ['student', 'tutor'],
+            importPage: () => import(/* webpackChunkName: "dashboard-page" */ '../tutoria-dashboard-page/tutoria-dashboard-page.js'),
+            pageTagName: 'tutoria-dashboard-page'
           },
         ]
+      },
+      _filteredPathToPageMaps: {
+        type: Array,
+        computed: '_computeFilteredPathToPageMaps(_pathToPageMaps.*, _userProfile.roles.*, _loggedIn)'
       },
 
       _pathMatchResult: {
@@ -108,15 +146,26 @@ export default class TutoriaPages extends PolymerElement {
     this.__bindedOnSelectedPageShowToolbarShadowChanged = this._onSelectedPageShowToolbarShadowChanged.bind(this);
   }
 
+  _computeFilteredPathToPageMaps(pathToPageMapsChangeRecord, userRoleChangeRecord, loggedIn) {
+    let pathToPageMaps = (pathToPageMapsChangeRecord && pathToPageMapsChangeRecord.base) || [];
+    let userRoles = (userRoleChangeRecord && userRoleChangeRecord.base) || [];
+    
+    return pathToPageMaps.filter(map =>
+      !Array.isArray(map.requiredRoles)
+      || (map.requiredRoles.length == 0 && loggedIn)
+      || (loggedIn && map.requiredRoles.some(role =>
+        userRoles.includes(role)
+      ))
+    );
+  }
+
   _onSelectedPageChanged(selectedPage, deselectedPage) {
     // Down
     if (selectedPage) {
       selectedPage.pathMatchResult = this._pathMatchResult;
-      if (selectedPage.queryParams !== this.queryParams) {
-        // Perform dirty check since we cannot know which path has changed!
-        selectedPage.queryParams = undefined;
-        selectedPage.queryParams = this.queryParams;
-      }
+      // Perform dirty check since we cannot know which path has changed!
+      selectedPage.queryParams = undefined;
+      selectedPage.queryParams = this.queryParams;
     }
 
     // Up
@@ -158,7 +207,7 @@ export default class TutoriaPages extends PolymerElement {
       if (record.path.indexOf('.') < 0) {
         this._selectedPage.queryParams = record.base;
       } else {
-        this._selectedPage.notify(record.path);
+        this._selectedPage.notifyPath(record.path, record.value);
       }
     }
   }
